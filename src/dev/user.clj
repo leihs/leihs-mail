@@ -1,12 +1,11 @@
 (ns user
-  (:require [clojure.tools.logging :as log]
+  (:require clojure.repl
             [clojure.tools.namespace.repl :refer [refresh]]
-            [leihs.mail.main :refer [-main]]
-            clojure.repl))
+            [leihs.mail.main :refer [-main]]))
 
 (defn run []
   (-main "run"))
 
 (defn reset []
-  (when-let [ex (refresh :after 'app/run)] 
+  (when-let [ex (refresh :after 'user/run)] 
     (clojure.repl/pst ex)))
