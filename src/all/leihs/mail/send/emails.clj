@@ -42,17 +42,25 @@
       (select-keys [:sender :email :subject :body])
       (rename-keys {:sender :from, :email :to})))
 
-(defn- send-new-emails!
-  []
+(defn- send-emails!
+  [emails]
   (catcher/snatch {:level :warn}
-                  (doseq [email (get-new-emails)]
+                  (doseq [email emails]
                     (log/debug (str "sending email to: " (:email email)))
-                    (let [result (-> email
-                                     prepare-email-message
-                                     postal/send-message)]
+                    (let [result (try (->> email
+                                           prepare-email-message
+                                           postal/send-message)
+                                      (catch Exception e
+                                        {:code 99,
+                                         :error (-> e
+                                                    .getClass
+                                                    .getSimpleName),
+                                         :message (.getMessage e)}))]
                       (-> email
                           (prepare-email-row result)
                           update-email!)))))
+
+(defn- send-new-emails! [] (send-emails! (get-new-emails)))
 
 (defn- get-failed-emails
   []
@@ -66,17 +74,7 @@
       sql/format
       (->> (jdbc/query (get-ds)))))
 
-(defn- retry-failed-emails!
-  []
-  (catcher/snatch {:level :warn}
-                  (doseq [email (get-failed-emails)]
-                    (log/debug (str "sending email to: " (:email email)))
-                    (let [result (-> email
-                                     prepare-email-message
-                                     postal/send-message)]
-                      (-> email
-                          (prepare-email-row result)
-                          update-email!)))))
+(defn- retry-failed-emails! [] (send-emails! (get-failed-emails)))
 
 (defn send! [] (send-new-emails!) (retry-failed-emails!))
 
