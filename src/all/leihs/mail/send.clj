@@ -1,22 +1,40 @@
 (ns leihs.mail.send
-  (:require [clojure.tools.logging :as log]))
+  (:refer-clojure :exclude [run!])
+  (:require [clojure.tools.logging :as log]
+            [leihs.mail.send.emails :as emails]
+            [leihs.mail.constants :as constants]))
 
 (def send-loop-thread (atom nil))
 
-(defn send-loop
+(defn- send-loop
   []
-  (while (not (.isInterrupted @send-loop-thread))
-         (Thread/sleep 100)
-         (log/debug "foo")))
+  (while (not (.isInterrupted (Thread/currentThread)))
+    (Thread/sleep (* constants/send-frequency-in-seconds 1000))
+    (emails/send!)))
 
-(defn interrupt [] (.interrupt @send-loop-thread))
-
-(defn stop [] (.stop @send-loop-thread))
-
-(defn run
+(defn interrupt-old!
   []
-  (let [t (Thread. send-loop)]
-    (reset! send-loop-thread t)
-    (.start @send-loop-thread)))
+  (when @send-loop-thread
+    (log/info "interrupting send loop thread")
+    (.interrupt @send-loop-thread))
+  (reset! send-loop-thread nil))
 
-(comment (run) (interrupt) (stop) (.isAlive @send-loop-thread))
+(defn- start-new!
+  []
+  (reset! send-loop-thread (Thread. send-loop))
+  (log/info "starting new send loop thread")
+  (.start @send-loop-thread))
+
+(defn- stop-old!
+  []
+  (log/info "stoping send loop thread")
+  (.stop @send-loop-thread)
+  (reset! send-loop-thread nil))
+
+(defn run! [] (interrupt-old!) (start-new!))
+
+(comment
+  (run!)
+  (interrupt-old!)
+  (stop-old!)
+  (.isAlive @send-loop-thread))

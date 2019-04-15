@@ -19,10 +19,11 @@
                   [io.dropwizard.metrics/metrics-core "4.0.3"]
                   [io.dropwizard.metrics/metrics-healthchecks "4.0.3"]
                   [io.forward/yaml "1.0.9"]
-                  [log4j/log4j "1.2.17" :exclusions [javax.mail/mail
-                                                     javax.jms/jms
-                                                     com.sun.jdmk/jmxtools
-                                                     com.sun.jmx/jmxri]]
+                  [log4j/log4j "1.2.17" :exclusions
+                   [javax.mail/mail
+                    javax.jms/jms
+                    com.sun.jdmk/jmxtools
+                    com.sun.jmx/jmxri]]
                   [logbug "4.2.2"]
                   [nilenso/honeysql-postgres "0.2.4"]
                   [org.bouncycastle/bcprov-jdk15on "1.54"]
@@ -38,7 +39,7 @@
                   [ring-middleware-accept "2.0.3"]
                   [ring/ring-json "0.4.0"]
                   [ring/ring-jetty-adapter "1.7.1"]
-                  ]) 
+                  ])
 
 (require '[boot-fmt.core :refer [fmt]])
 
@@ -47,21 +48,26 @@
   aot {:all true}
   repl {:init-ns 'user}
   sift {:include #{#"leihs-mail.jar"}}
-  jar {:file "leihs-mail.jar"
-       :main 'leihs.mail.main}
+  jar {:file "leihs-mail.jar", :main 'leihs.mail.main}
   fmt {:options {:width 80,
                  :old? false,
                  :map {:lift-ns? false},
-                 :comment {:wrap? false, :inline? false, :count? false},
-                 :vector {:respect-nl? true}}
-       :files #{"src/all"}
-       :mode :overwrite
+                 :fn-map {"comment" :flow, "while" :arg1},
+                 :comment
+                 {:wrap? false, :inline? false, :count? false},
+                 :vector {:respect-nl? true}},
+       :files #{"src/all"},
+       :mode :overwrite,
        :really true})
 
 (deftask uberjar
   "Build an uberjar of the application."
   []
-  (comp (aot) (uber) (jar) (sift) (target))) 
+  (comp (aot)
+        (uber)
+        (jar)
+        (sift)
+        (target)))
 
 (deftask run
   "Run the application with given opts."
@@ -75,21 +81,21 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DEV ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (deftask dev
+  "Development profile to be used in combination with other tasks."
   []
   (set-env! :source-paths #(conj % "src/dev"))
-  (require 'user
-           '[clojure.tools.namespace.repl :as ctnr])
+  (require 'reset '[clojure.tools.namespace.repl :as ctnr])
   identity)
 
 (ns-unmap *ns* 'repl)
 (deftask repl
+  "Overriding built-in repl with dev profile."
   []
   (comp (dev)
         (boot.task.built-in/repl)))
 
 (deftask reset
-  "Reload all changed namespaces on the classpath
-  and reset the application state continuously."
+  "Reset changed namespaces using clojure.tools.namespace."
   []
   ; use `resolve` because of dynamic `require` (not top-level):
   ; https://github.com/boot-clj/boot/wiki/Boot-Troubleshooting#why-isnt-require-working-in-my-pod
@@ -97,9 +103,11 @@
     (apply (resolve 'ctnr/set-refresh-dirs)
            (get-env :directories))
     (with-bindings {#'*ns* *ns*}
-      ((resolve 'user/reset)))))
+      ((resolve 'reset/reset)))))
 
-(deftask focus
+(deftask
+  focus
+  "Watch for changed files, reload namespaces and reset application state."
   []
   (comp (dev)
         (boot.task.built-in/repl "-s")

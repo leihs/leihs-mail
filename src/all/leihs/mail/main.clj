@@ -7,6 +7,7 @@
             [clojure.tools.cli :as cli :refer [parse-opts]]
             [leihs.core.ds :as ds]
             [leihs.mail.status :as status]
+            [leihs.mail.send :as send]
             [leihs.core.url.jdbc :as jdbc-url]
             [clojure.pprint :refer [pprint]]
             [leihs.core.shutdown :as shutdown]))
@@ -68,6 +69,7 @@
                   (let [status (status/init)]
                     (ds/init (:database-url options)
                              (:health-check-registry status)))
+                  (send/run!)
                   nil))
 
 (defn -main

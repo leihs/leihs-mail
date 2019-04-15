@@ -1,11 +1,9 @@
 (ns user
   (:require clojure.repl
-            [clojure.tools.namespace.repl :refer [refresh]]
-            [leihs.mail.main :refer [-main]]))
+            [clojure.tools.namespace.repl :as ctnr]
+            leihs.mail.main
+            leihs.mail.send))
 
-(defn run []
-  (-main "run"))
+(defn stop [] (leihs.mail.send/interrupt-old!))
 
-(defn reset []
-  (when-let [ex (refresh :after 'user/run)] 
-    (clojure.repl/pst ex)))
+(defn run [] (leihs.mail.main/-main "run"))
