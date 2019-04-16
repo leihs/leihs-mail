@@ -69,8 +69,8 @@
       (sql/merge-where [:> :emails.code 0])
       (sql/merge-where
         [:>
-         (sql/call :extract (sql/raw "minute from (now() - emails.updated_at)"))
-         (:retry-frequency-in-minutes cli/options)])
+         (sql/call :extract (sql/raw "second from (now() - emails.updated_at)"))
+         (:retry-frequency-in-seconds cli/options)])
       (sql/merge-where [:< :emails.trials (:maximum-trials cli/options)])
       sql/format
       (->> (jdbc/query (get-ds)))))

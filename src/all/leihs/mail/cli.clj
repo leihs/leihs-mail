@@ -9,7 +9,7 @@
   {:LEIHS_DATABASE_URL
      "jdbc:postgresql://leihs:leihs@localhost:5432/leihs?min-pool-size=1&max-pool-size=5",
    :LEIHS_MAIL_SEND_FREQUENCY_IN_SECONDS 5,
-   :LEIHS_MAIL_RETRY_FREQUENCY_IN_MINUTES 5,
+   :LEIHS_MAIL_RETRY_FREQUENCY_IN_SECONDS 5,
    :LEIHS_MAIL_MAXIMUM_TRIALS 2})
 
 (defn env-or-default
@@ -42,9 +42,9 @@
     (str "default: " (:LEIHS_MAIL_SEND_FREQUENCY_IN_SECONDS defaults))
     :default (env-or-default :LEIHS_MAIL_SEND_FREQUENCY_IN_SECONDS)
     :parse-fn #(Integer/parseInt %)]
-   [nil "--retry-frequency-in-minutes LEIHS_MAIL_RETRY_FREQUENCY_IN_MINUTES"
-    (str "default: " (:LEIHS_MAIL_RETRY_FREQUENCY_IN_MINUTES defaults))
-    :default (env-or-default :LEIHS_MAIL_RETRY_FREQUENCY_IN_MINUTES)
+   [nil "--retry-frequency-in-minutes LEIHS_MAIL_RETRY_FREQUENCY_IN_SECONDS"
+    (str "default: " (:LEIHS_MAIL_RETRY_FREQUENCY_IN_SECONDS defaults))
+    :default (env-or-default :LEIHS_MAIL_RETRY_FREQUENCY_IN_SECONDS)
     :parse-fn #(Integer/parseInt %)]
    [nil "--maximum-trials LEIHS_MAIL_MAXIMUM_TRIALS"
     (str "default: " (:LEIHS_MAIL_MAXIMUM_TRIALS defaults))
