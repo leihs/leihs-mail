@@ -92,7 +92,7 @@
       sql/format
       ; (->> (jdbc/execute! (get-ds)))
     )
-  (postal/send-message ;{:host (:smtp_address settings)}
+  (postal/send-message {:host "localhost"}
                        {:from "me@nitaai.com",
                         :to ["foo@example.com"],
                         :subject "matus local testing",
