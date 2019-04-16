@@ -39,18 +39,18 @@
                   (let [status (status/init)]
                     (ds/init (:database-url options)
                              (:health-check-registry status)))
-                  (send/run!)
+                  (send/run! options)
                   nil))
 
 (defn -main
   [& args]
   (let [{:keys [options arguments summary]} (cli/parse args)]
-    (def options options)
-    (cond (:help options) (println (main-usage summary
-                                               {:args args, :options options}))
-          :else (case (-> arguments
-                          first
-                          keyword)
-                  :run (run options)
-                  (println (main-usage summary
-                                       {:args args, :options options}))))))
+    (letfn [(print-main-usage-summary
+              (println (main-usage summary {:args args, :options options})))]
+      (if (:help options)
+        (print-main-usage-summary)
+        (case (-> arguments
+                  first
+                  keyword)
+          :run (run options)
+          (println (print-main-usage-summary)))))))

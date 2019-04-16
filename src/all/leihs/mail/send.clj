@@ -6,10 +6,19 @@
 
 (def send-loop-thread (atom nil))
 
+(def smtp-address (atom nil))
+(def smtp-port (atom nil))
+
+(defn- setting-or-option
+  [kw]
+  (-> kw
+      name
+      camelize))
+
 (defn- send-loop
   []
   (while (not (.isInterrupted (Thread/currentThread)))
-    (Thread/sleep (-> cli/options
+    (Thread/sleep (-> @cli/options
                       :send-frequency-in-seconds
                       (* 1000)))
     (emails/send!)))
@@ -33,7 +42,12 @@
   (.stop @send-loop-thread)
   (reset! send-loop-thread nil))
 
-(defn run! [] (interrupt-old!) (start-new!))
+(defn run!
+  [options]
+  (interrupt-old!)
+  (reset! smtp-address (:smtp-address options))
+  (reset! smtp-port (:smtp-port options))
+  (start-new!))
 
 (comment
   (run!)

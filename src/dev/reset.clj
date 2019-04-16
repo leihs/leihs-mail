@@ -15,4 +15,5 @@
 (defn reset
   []
   (stop)
-  (if-let [ex (ctnr/refresh :after 'user/run)] (clojure.repl/pst ex)))
+  (if-let [ex (ctnr/refresh :after 'user/run)]
+    (clojure.repl/pst ex)))
