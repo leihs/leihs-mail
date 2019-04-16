@@ -1,12 +1,13 @@
 (ns leihs.mail.send.emails
-  (:require [postal.core :as postal]
-            [leihs.core.ds :refer [get-ds]]
-            [leihs.core.sql :as sql]
-            [clojure.java.jdbc :as jdbc]
+  (:require [clojure.java.jdbc :as jdbc]
             [clojure.set :refer [rename-keys]]
-            [logbug.catcher :as catcher]
             [clojure.tools.logging :as log]
-            [leihs.mail.constants :as constants]))
+            [leihs.core
+             [ds :refer [get-ds]]
+             [sql :as sql]]
+            [leihs.mail.cli :as cli]
+            [logbug.catcher :as catcher]
+            [postal.core :as postal]))
 
 (def ^:private email-base-sqlmap
   (-> (sql/select :emails.* :users.email)
@@ -69,8 +70,8 @@
       (sql/merge-where
         [:>
          (sql/call :extract (sql/raw "minute from (now() - emails.updated_at)"))
-         constants/retry-frequency-in-minutes])
-      (sql/merge-where [:< :emails.trials constants/maximum-trials])
+         (:retry-frequency-in-minutes cli/options)])
+      (sql/merge-where [:< :emails.trials (:maximum-trials cli/options)])
       sql/format
       (->> (jdbc/query (get-ds)))))
 

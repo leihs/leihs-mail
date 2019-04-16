@@ -1,47 +1,17 @@
 (ns leihs.mail.main
   (:gen-class)
   (:refer-clojure :exclude [str keyword])
-  (:require [leihs.core.core :refer [str keyword presence]]
+  (:require [clojure.pprint :refer [pprint]]
             [clojure.tools.logging :as log]
-            [logbug.catcher :as catcher]
-            [clojure.tools.cli :as cli :refer [parse-opts]]
-            [leihs.core.ds :as ds]
-            [leihs.mail.status :as status]
-            [leihs.mail.send :as send]
-            [leihs.core.url.jdbc :as jdbc-url]
-            [clojure.pprint :refer [pprint]]
-            [leihs.core.shutdown :as shutdown]))
-
-(def defaults
-  {:LEIHS_DATABASE_URL
-     "jdbc:postgresql://leihs:leihs@localhost:5432/leihs?min-pool-size=1&max-pool-size=5"})
-
-(defn env-or-default
-  [kw]
-  (or (-> (System/getenv)
-          (get (str kw) nil)
-          presence)
-      (get defaults kw nil)))
-
-(defn extend-pg-params
-  [params]
-  (assoc params
-    :password (or (:password params) (System/getenv "PGPASSWORD"))
-    :username (or (:username params) (System/getenv "PGUSER"))
-    :port (or (:port params) (System/getenv "PGPORT"))))
-
-(def ^:private cli-options
-  [["-h" "--help"]
-   ["-d" "--database-url LEIHS_DATABASE_URL"
-    (str "default: " (:LEIHS_DATABASE_URL defaults))
-    :default
-    (-> (env-or-default :LEIHS_DATABASE_URL)
-        jdbc-url/dissect
-        extend-pg-params)
-    :parse-fn
-    #(-> %
-         jdbc-url/dissect
-         extend-pg-params)]])
+            [leihs.core
+             [core :refer [keyword]]
+             [ds :as ds]
+             [shutdown :as shutdown]]
+            [leihs.mail
+             [cli :as cli]
+             [send :as send]
+             [status :as status]]
+            [logbug.catcher :as catcher]))
 
 (defn- main-usage
   [options-summary & more]
@@ -74,8 +44,8 @@
 
 (defn -main
   [& args]
-  (let [{:keys [options arguments summary]}
-          (cli/parse-opts args cli-options :in-order true)]
+  (let [{:keys [options arguments summary]} (cli/parse args)]
+    (def options options)
     (cond (:help options) (println (main-usage summary
                                                {:args args, :options options}))
           :else (case (-> arguments

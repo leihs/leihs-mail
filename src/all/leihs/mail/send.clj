@@ -2,14 +2,16 @@
   (:refer-clojure :exclude [run!])
   (:require [clojure.tools.logging :as log]
             [leihs.mail.send.emails :as emails]
-            [leihs.mail.constants :as constants]))
+            [leihs.mail.cli :as cli]))
 
 (def send-loop-thread (atom nil))
 
 (defn- send-loop
   []
   (while (not (.isInterrupted (Thread/currentThread)))
-    (Thread/sleep (* constants/send-frequency-in-seconds 1000))
+    (Thread/sleep (-> cli/options
+                      :send-frequency-in-seconds
+                      (* 1000)))
     (emails/send!)))
 
 (defn interrupt-old!

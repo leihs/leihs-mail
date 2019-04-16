@@ -1,14 +1,10 @@
 (ns leihs.mail.status
-  (:require [leihs.core.core :refer [presence]]
-            [leihs.core.ds :as ds]
-            [clojure.data.json :as json]
+  (:require [clojure.data.json :as json]
+            [clojure.tools.logging :as logging]
             [compojure.core :as cpj]
-            [compojure.handler :as cpj.handler]
-            [logbug.debug :as debug]
-            [clj-logging-config.log4j :as logging-config]
-            [clojure.tools.logging :as logging])
-  (:import [humanize Humanize]
-           [com.codahale.metrics.health HealthCheckRegistry]))
+            [leihs.core.ds :as ds])
+  (:import com.codahale.metrics.health.HealthCheckRegistry
+           humanize.Humanize))
 
 ;;; health checks ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
