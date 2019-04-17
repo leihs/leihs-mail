@@ -5,7 +5,7 @@
             [leihs.core
              [ds :refer [get-ds]]
              [sql :as sql]]
-            [leihs.mail.cli :as cli]
+            [leihs.mail.settings :as settings]
             [logbug.catcher :as catcher]
             [postal.core :as postal]))
 
@@ -45,21 +45,23 @@
 
 (defn- send-emails!
   [emails]
-  (catcher/snatch {:level :warn}
-                  (doseq [email emails]
-                    (log/debug (str "sending email to: " (:email email)))
-                    (let [result (try (->> email
-                                           prepare-email-message
-                                           postal/send-message)
-                                      (catch Exception e
-                                        {:code 99,
-                                         :error (-> e
-                                                    .getClass
-                                                    .getSimpleName),
-                                         :message (.getMessage e)}))]
-                      (-> email
-                          (prepare-email-row result)
-                          update-email!)))))
+  (catcher/snatch
+    {:level :warn}
+    (doseq [email emails]
+      (log/debug (str "sending email to: " (:email email)))
+      (let [result (try (->> email
+                             prepare-email-message
+                             (postal/send-message {:host @settings/smtp-address,
+                                                   :port @settings/smtp-port}))
+                        (catch Exception e
+                          {:code 99,
+                           :error (-> e
+                                      .getClass
+                                      .getSimpleName),
+                           :message (.getMessage e)}))]
+        (-> email
+            (prepare-email-row result)
+            update-email!)))))
 
 (defn- send-new-emails! [] (send-emails! (get-new-emails)))
 
@@ -70,8 +72,8 @@
       (sql/merge-where
         [:>
          (sql/call :extract (sql/raw "second from (now() - emails.updated_at)"))
-         (:retry-frequency-in-seconds @cli/options)])
-      (sql/merge-where [:< :emails.trials (:maximum-trials @cli/options)])
+         @settings/retry-frequency-in-seconds])
+      (sql/merge-where [:< :emails.trials @settings/maximum-trials])
       sql/format
       (->> (jdbc/query (get-ds)))))
 

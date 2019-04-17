@@ -12,6 +12,7 @@
                   [compojure "1.6.1"]
                   [hiccup "1.0.5"]
                   [boot-fmt "0.1.8"]
+                  [camel-snake-kebab "0.4.0"]
                   [com.draines/postal "2.0.3"]
                   [hikari-cp "2.7.1"]
                   [honeysql "0.9.4"]

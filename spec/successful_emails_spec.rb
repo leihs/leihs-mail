@@ -9,7 +9,7 @@ describe 'Sending of emails' do
     expect(email.trials).to eq 1
     expect(email.code).to eq 0
     expect(email.error).to eq 'SUCCESS'
-    expect(email.message).to eq 'message sent'
+    expect(email.message).to eq 'messages sent'
     
     expect(Email.count).to eq 1
   end
@@ -22,7 +22,7 @@ describe 'Sending of emails' do
     expect(email.trials).to eq 2
     expect(email.code).to eq 0
     expect(email.error).to eq 'SUCCESS'
-    expect(email.message).to eq 'message sent'
+    expect(email.message).to eq 'messages sent'
 
     expect(Email.count).to eq 1
   end

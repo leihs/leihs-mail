@@ -1,26 +1,18 @@
 (ns leihs.mail.send
   (:refer-clojure :exclude [run!])
-  (:require [clojure.tools.logging :as log]
+  (:require [camel-snake-kebab.core :as csk]
+            [clojure.java.jdbc :as jdbc]
+            [clojure.tools.logging :as log]
+            [leihs.mail.settings :as settings]
             [leihs.mail.send.emails :as emails]
             [leihs.mail.cli :as cli]))
 
 (def send-loop-thread (atom nil))
 
-(def smtp-address (atom nil))
-(def smtp-port (atom nil))
-
-(defn- setting-or-option
-  [kw]
-  (-> kw
-      name
-      camelize))
-
 (defn- send-loop
   []
   (while (not (.isInterrupted (Thread/currentThread)))
-    (Thread/sleep (-> @cli/options
-                      :send-frequency-in-seconds
-                      (* 1000)))
+    (Thread/sleep (* @settings/send-frequency-in-seconds 1000))
     (emails/send!)))
 
 (defn interrupt-old!
@@ -42,12 +34,7 @@
   (.stop @send-loop-thread)
   (reset! send-loop-thread nil))
 
-(defn run!
-  [options]
-  (interrupt-old!)
-  (reset! smtp-address (:smtp-address options))
-  (reset! smtp-port (:smtp-port options))
-  (start-new!))
+(defn run! [options] (interrupt-old!) (settings/init options) (start-new!))
 
 (comment
   (run!)
