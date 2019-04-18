@@ -5,14 +5,7 @@ scripts:
     body: |
       #!/usr/bin/env bash
       set -eux
-
-      DIGEST=$(git log -n 1 HEAD --pretty=%T)
-      UBERJAR_FILE="/tmp/leihs-mail_${DIGEST}.jar"
-      if [ -f "${UBERJAR_FILE}" ];then
-        echo " ${UBERJAR_FILE} exists"
-      else
-        ./bin/boot --no-colors uberjar
-        mv "target/leihs-mail.jar" "${UBERJAR_FILE}"
-      fi
-      mkdir -p target
-      ln -s "$UBERJAR_FILE" "target/leihs-mail.jar"
+      export BOOT_VERSION=2.8.3
+      export BOOT_CLOJURE_VERSION=1.9.0
+      chmod 755 ./bin/boot
+      ./bin/boot --no-colors uberjar
