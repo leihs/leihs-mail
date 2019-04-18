@@ -14,7 +14,6 @@ jobs:
           - cider-ci/uberjar_task-component.yml
         traits:
           JDK 8: true
-          Boot: true
         environment_variables:
           MAIL_DIR: '{{CIDER_CI_WORKING_DIR}}'
           DATABASE_NAME: leihs_mail_{{CIDER_CI_TRIAL_ID}}

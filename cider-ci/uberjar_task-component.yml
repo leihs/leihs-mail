@@ -11,7 +11,7 @@ scripts:
       if [ -f "${UBERJAR_FILE}" ];then
         echo " ${UBERJAR_FILE} exists"
       else
-        boot uberjar
+        ./bin/boot uberjar
         mv "target/leihs-mail.jar" "${UBERJAR_FILE}"
       fi
       mkdir -p target
