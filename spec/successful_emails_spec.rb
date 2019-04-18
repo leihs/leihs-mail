@@ -5,38 +5,62 @@ def assert_received_email(from, to)
   expect(system "grep '#{s}' #{LOG_FILE_PATH}").to be true
 end
 
+def assert_not_received_email(from, to)
+  s = "Received mail from <#{from}> with recipient <#{to}>"
+  expect(system "grep '#{s}' #{LOG_FILE_PATH}").to be false
+end
+
+def expect_until_timeout(timeout = 10)
+  Timeout.timeout(timeout) do
+    p = proc do
+      begin 
+        aggregate_failures do
+          yield
+        end
+      rescue RSpec::Expectations::MultipleExpectationsNotMetError => e
+        sleep 1
+        p.call
+      end
+    end
+
+    p.call
+  end
+end
+
 describe 'Sending of emails' do
   it '1st trial' do
     email = FactoryBot.create(:email, :unsent)
-    sleep(SEND_FREQUENCY_IN_SECONDS + DELAY_LATENCY_IN_SECONDS)
+    sleep(SEND_FREQUENCY_IN_SECONDS + 1)
 
-    email.reload
-    expect(email.trials).to eq 1
-    expect(email.code).to eq 0
-    expect(email.error).to eq 'SUCCESS'
-    expect(email.message).to eq 'messages sent'
-    
-    expect(Email.count).to eq 1
-    assert_received_email(email.sender, email.user.email)
+    expect_until_timeout do
+      email.reload
+      expect(email.trials).to eq 1
+      expect(email.code).to eq 0
+      expect(email.error).to eq 'SUCCESS'
+      expect(email.message).to eq 'messages sent'
+      expect(Email.count).to eq 1
+      assert_received_email(email.sender, email.user.email)
+    end
   end
 
   it '2nd trial' do
     email = FactoryBot.create(:email, :failed)
-    sleep(RETRY_FREQUENCY_IN_SECONDS + DELAY_LATENCY_IN_SECONDS)
+    sleep(SEND_FREQUENCY_IN_SECONDS + RETRY_FREQUENCY_IN_SECONDS + 1)
 
-    email.reload
-    expect(email.trials).to eq 2
-    expect(email.code).to eq 0
-    expect(email.error).to eq 'SUCCESS'
-    expect(email.message).to eq 'messages sent'
-
-    expect(Email.count).to eq 1
-    assert_received_email(email.sender, email.user.email)
+    expect_until_timeout do
+      email.reload
+      expect(email.trials).to eq 2
+      expect(email.code).to eq 0
+      expect(email.error).to eq 'SUCCESS'
+      expect(email.message).to eq 'messages sent'
+      expect(Email.count).to eq 1
+      assert_received_email(email.sender, email.user.email)
+    end
   end
 
   it 'no trial if already succeeded' do
     email = FactoryBot.create(:email, :succeeded)
-    sleep(10)
+    sleep(SEND_FREQUENCY_IN_SECONDS + 10)
 
     email.reload
     expect(email.trials).to eq 1
@@ -45,5 +69,6 @@ describe 'Sending of emails' do
     expect(email.message).to eq 'message sent'
 
     expect(Email.count).to eq 1
+    assert_not_received_email(email.sender, email.user.email)
   end
 end
