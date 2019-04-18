@@ -1,0 +1,30 @@
+scripts:
+
+  run-server:
+    start_when:
+      uberjar has been built:
+        script_key: build-uberjar
+      database has been created:
+        script_key: create-database
+    body: java -jar target/leihs-mail.jar run
+
+  server-is-running:
+    body: |
+      exit 0
+    start_when:
+      run server is executing:
+        script_key: run-server
+        states: [executing]
+
+  test:
+    start_when:
+      server is running:
+        script_key: server-is-running
+
+  shutdown-server:
+    body: |
+      exit 0
+    start_when:
+      test is terminal:
+        script_key: test
+        states: [aborted, defective, passed, failed, skipped]

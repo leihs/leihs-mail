@@ -1,0 +1,38 @@
+scripts:
+
+  run_fake-smtp-server:
+    start_when:
+      bundled:
+        script_key: bundle-rspec-ruby
+      # the following is not a hard dependency, this ist just not fall
+      # into a timeout when building the uberjar taks very long
+      the uberjar is ready:
+        script_key: build-uberjar
+    timeout: 5 Minutes
+    body: ./scripts/run_fake_smtp
+
+  fake-smtp-server_is-running:
+    timeout: 30 seconds
+    start_when:
+      the service is running:
+        script_key: run_fake-smtp-server
+        states: [executing]
+
+  test:
+    # either passes in less than 20 seconds or not and then would run for minutes
+    start_when:
+      fake-smtp-server is running:
+        script_key: fake-smtp-server_is-running
+
+  shutdown_fake-stmp-server:
+    timeout: 3 Seconds
+    body: |
+      set -eux
+      kill -INT $(lsof -t -wni tcp:${FAKE_SMTP_SERVER_PORT})
+      sleep 1
+    start_when:
+      test is terminal:
+        script_key: test
+        states: [aborted, defective, passed, failed, skipped]
+      we are running:
+        script_key: fake-smtp-server_is-running

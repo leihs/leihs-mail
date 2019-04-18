@@ -1,0 +1,18 @@
+scripts:
+  build-uberjar:
+    timeout: 10 minutes
+    exclusive_executor_resource: build-leihs-mail-jar
+    body: |
+      #!/usr/bin/env bash
+      set -eux
+
+      DIGEST=$(git log -n 1 HEAD --pretty=%T)
+      UBERJAR_FILE="/tmp/leihs-my_${DIGEST}.jar"
+      if [ -f "${UBERJAR_FILE}" ];then
+        echo " ${UBERJAR_FILE} exists"
+      else
+        boot uberjar
+        mv "target/leihs-mail.jar" "${UBERJAR_FILE}"
+      fi
+      mkdir -p target
+      ln -s "$UBERJAR_FILE" "target/leihs-mail.jar"
