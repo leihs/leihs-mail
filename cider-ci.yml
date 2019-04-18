@@ -23,6 +23,9 @@ jobs:
           RUBY: '{{RUBY_ENGINE}}-{{RUBY_VERSION}}'
           RUBY_ENGINE: ruby
           RUBY_VERSION: 2.6.0
+        git_options:
+          submodules:
+            include_match: ^.*$
 
       tasks:
         unreachable smtp server spec:
