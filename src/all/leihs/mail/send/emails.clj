@@ -7,6 +7,7 @@
              [sql :as sql]]
             [leihs.mail.settings :as settings]
             [logbug.catcher :as catcher]
+            [logbug.thrown :as thrown]
             [postal.core :as postal]))
 
 (def ^:private email-base-sqlmap
@@ -54,10 +55,13 @@
                              (postal/send-message {:host @settings/smtp-address,
                                                    :port @settings/smtp-port}))
                         (catch Exception e
+                          (log/warn (-> e
+                                        .getCause
+                                        thrown/to-string))
                           {:code 99,
                            :error (-> e
                                       .getClass
-                                      .getSimpleName),
+                                      .getName),
                            :message (.getMessage e)}))]
         (-> email
             (prepare-email-row result)
