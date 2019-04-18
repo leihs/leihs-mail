@@ -3,3 +3,4 @@
 src/dev/scratch.clj
 log/
 tmp/
+target/

@@ -24,8 +24,12 @@ jobs:
           RUBY: '{{RUBY_ENGINE}}-{{RUBY_VERSION}}'
           RUBY_ENGINE: ruby
           RUBY_VERSION: 2.6.0
-        scripts:
-          test:
-            body: |
-              #!/usr/bin/env bash
-              exit 0
+
+      tasks:
+        unreachable smtp server spec:
+          name: "Unreachable smtp server spec"
+          scripts:
+            test:
+              body: |
+                #!/usr/bin/env bash
+                exit 0
