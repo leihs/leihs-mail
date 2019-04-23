@@ -9,13 +9,6 @@ scripts:
       set -eux
       export PATH=~/.rubies/$RUBY/bin:$PATH
       ./scripts/run_fake_smtp &
-      if $(ps -p $!); then
-        mkdir -p tmp
-        touch tmp/fake_smtp_pid
-        echo $! > tmp/fake_smtp_pid
-        exit 0
-      fi
-      exit 1
 
   fake-smtp-server_is-running:
     timeout: 30 seconds
@@ -23,13 +16,8 @@ scripts:
       the service is running:
         script_key: run_fake-smtp-server
         states: [executing]
-    body: |
-      until test -f tmp/fake_smtp_pid -a -n tmp/fake_smtp_pid;
-        do sleep 1;
-      done
 
   test:
-    # either passes in less than 20 seconds or not and then would run for minutes
     start_when:
       fake-smtp-server is running:
         script_key: fake-smtp-server_is-running
@@ -37,9 +25,8 @@ scripts:
   shutdown_fake-stmp-server:
     timeout: 3 Seconds
     body: |
-      FAKE_SMTP_PID="./tmp/fake_smtp_pid"
-      kill $(cat "$FAKE_SMTP_PID")
-      rm -f "$FAKE_SMTP_PID"
+      pid=`lsof -t -i :$LEIHS_MAIL_SMTP_PORT`
+      kill $pid
     start_when:
       test is terminal:
         script_key: test
