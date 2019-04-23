@@ -1,4 +1,5 @@
+LEIHS_MAIL_SMTP_PORT=${VAR:=25}
 mkdir -p log
 touch log/fake_smtp.log
 echo '' > log/fake_smtp.log
-bundle exec post_office -l log/fake_smtp.log
+bundle exec post_office -l log/fake_smtp.log -s $LEIHS_MAIL_SMTP_PORT
