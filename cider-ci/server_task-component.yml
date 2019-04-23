@@ -7,7 +7,7 @@ scripts:
       database has been created:
         script_key: create-database
     ignore_state: true # because we kill the server mercilessly
-    body: java -jar target/leihs-mail.jar run --smtp-port $LEIHS_MAIL_SMTP_PORT
+    body: java -jar target/leihs-mail.jar run
 
   server-is-running:
     timeout: 30 seconds

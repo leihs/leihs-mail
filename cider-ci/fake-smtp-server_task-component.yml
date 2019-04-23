@@ -28,12 +28,12 @@ scripts:
     timeout: 3 Seconds
     body: |
       smtp_pid=`lsof -t -i :$LEIHS_MAIL_SMTP_PORT`
-      if $smtp_pid; then
+      if test $smtp_pid; then
         kill $smtp_pid
       fi
 
       pop3_pid=`lsof -t -i :$LEIHS_MAIL_POP3_PORT`
-      if $pop3_pid; then
+      if test $pop3_pid; then
         kill $pop3_pid
       fi
     start_when:
