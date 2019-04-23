@@ -15,6 +15,9 @@ task_defaults:
     submodules:
       include_match: ^.*$
   ports:
+    LEIHS_MAIL_POP3_PORT:
+      min: 3980
+      max: 3989
     LEIHS_MAIL_SMTP_PORT:
       min: 3990
       max: 3999
