@@ -16,7 +16,7 @@
 
 (defn handle-pidfile
   []
-  (let [pid-file "./tmp/pid"]
+  (let [pid-file "./tmp/server_pid"]
     (.mkdirs (java.io.File. "./tmp"))
     (pid/save pid-file)
     (log/info (str "pid-file written to " pid-file))

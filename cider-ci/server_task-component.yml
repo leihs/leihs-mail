@@ -10,12 +10,13 @@ scripts:
     body: java -jar target/leihs-mail.jar run
 
   server-is-running:
+    timeout: 30 seconds
     start_when:
       run server is executing:
         script_key: run-server
         states: [executing]
     body: |
-      until test -f tmp/pid -a -n tmp/pid;
+      until test -f tmp/server_pid -a -n tmp/server_pid;
         do sleep 1;
       done
 
@@ -30,6 +31,6 @@ scripts:
         script_key: test
         states: [aborted, defective, passed, failed, skipped]
     body: |
-      PID="./tmp/pid"
-      kill -9 $(cat "$PID")
-      rm -f "$PID"
+      SERVER_PID="./tmp/server_pid"
+      kill -9 $(cat "$SERVER_PID")
+      rm -f "$SERVER_PID"

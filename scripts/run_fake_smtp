@@ -1,3 +1,4 @@
+mkdir -p log
 touch log/fake_smtp.log
 echo '' > log/fake_smtp.log
 bundle exec post_office -l log/fake_smtp.log

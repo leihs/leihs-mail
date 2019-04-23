@@ -1,0 +1,16 @@
+task_defaults:
+  max_trials: 1
+  traits:
+    JDK 8: true
+  environment_variables:
+    MAIL_DIR: '{{CIDER_CI_WORKING_DIR}}'
+    DATABASE_NAME: leihs_mail_{{CIDER_CI_TRIAL_ID}}
+    LEIHS_DATABASE_URL: "jdbc:postgresql://localhost/{{DATABASE_NAME}}?max-pool-size=5"
+    LEIHS_SECRET: '{{CIDER_CI_TRIAL_ID}}'
+    RAILS_ENV: test
+    RUBY: '{{RUBY_ENGINE}}-{{RUBY_VERSION}}'
+    RUBY_ENGINE: ruby
+    RUBY_VERSION: 2.6.0
+  git_options:
+    submodules:
+      include_match: ^.*$
