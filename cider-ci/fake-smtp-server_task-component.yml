@@ -9,9 +9,13 @@ scripts:
       set -eux
       export PATH=~/.rubies/$RUBY/bin:$PATH
       ./scripts/run_fake_smtp &
-      mkdir -p tmp
-      touch tmp/fake_smtp_pid
-      echo $! > tmp/fake_smtp_pid
+      if $(ps -p $!); then
+        mkdir -p tmp
+        touch tmp/fake_smtp_pid
+        echo $! > tmp/fake_smtp_pid
+        exit 0
+      fi
+      exit 1
 
   fake-smtp-server_is-running:
     timeout: 30 seconds
