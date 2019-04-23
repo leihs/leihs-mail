@@ -1,4 +1,7 @@
-LEIHS_MAIL_SMTP_PORT=${VAR:=25}
+if test -z $LEIHS_MAIL_SMTP_PORT; then
+  LEIHS_MAIL_SMTP_PORT=25
+fi
+echo "smtp port: $LEIHS_MAIL_SMTP_PORT"
 mkdir -p log
 touch log/fake_smtp.log
 echo '' > log/fake_smtp.log
