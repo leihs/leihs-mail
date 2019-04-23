@@ -34,5 +34,6 @@ jobs:
           scripts:
             test:
               body: |
-                #!/usr/bin/env bash
-                exit 0
+                set -eux
+                export PATH=~/.rubies/$RUBY/bin:$PATH
+                bundle exec rspec ./spec/smtp_server_unreachable_spec.rb
