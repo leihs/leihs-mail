@@ -10,33 +10,35 @@ scripts:
       export PATH=~/.rubies/$RUBY/bin:$PATH
       ./scripts/run_fake_smtp &
 
-  fake-smtp-server_is-running:
-    timeout: 30 seconds
-    start_when:
-      the service is running:
-        script_key: run_fake-smtp-server
-        states: [executing]
+  # fake-smtp-server_is-running:
+  #   timeout: 30 seconds
+  #   start_when:
+  #     the service is running:
+  #       script_key: run_fake-smtp-server
+  #       states: [executing]
 
   test:
     start_when:
       fake-smtp-server is running:
-        script_key: fake-smtp-server_is-running
+        # script_key: fake-smtp-server_is-running
+        script_key: run_fake-smtp-server
+        states: [executing]
 
   shutdown_fake-stmp-server:
     timeout: 3 Seconds
     body: |
       smtp_pid=`lsof -t -i :$LEIHS_MAIL_SMTP_PORT`
-      if test -n $smtp_pid; then
+      if $smtp_pid; then
         kill $smtp_pid
       fi
 
       pop3_pid=`lsof -t -i :$LEIHS_MAIL_POP3_PORT`
-      if test -n $pop3_pid; then
+      if $pop3_pid; then
         kill $pop3_pid
       fi
     start_when:
       test is terminal:
         script_key: test
         states: [aborted, defective, passed, failed, skipped]
-      we are running:
-        script_key: fake-smtp-server_is-running
+      # we are running:
+      #   script_key: fake-smtp-server_is-running
