@@ -4,14 +4,23 @@
   (:require [clojure.pprint :refer [pprint]]
             [clojure.tools.logging :as log]
             [leihs.core
-             [core :refer [keyword]]
+             [core :refer [str keyword]]
              [ds :as ds]
              [shutdown :as shutdown]]
             [leihs.mail
              [cli :as cli]
              [send :as send]
              [status :as status]]
+            [clj-pid.core :as pid]
             [logbug.catcher :as catcher]))
+
+(defn handle-pidfile
+  []
+  (let [pid-file "./tmp/pid"]
+    (.mkdirs (java.io.File. "./tmp"))
+    (pid/save pid-file)
+    (log/info (str "pid-file written to " pid-file))
+    (pid/delete-on-shutdown! pid-file)))
 
 (defn- main-usage
   [options-summary & more]
@@ -40,6 +49,7 @@
                     (ds/init (:database-url options)
                              (:health-check-registry status)))
                   (send/run! options)
+                  (handle-pidfile)
                   nil))
 
 (defn -main

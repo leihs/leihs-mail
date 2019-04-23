@@ -7,6 +7,7 @@ jobs:
         include_match: ^.*$
     context:
       task_defaults:
+        max_trials: 1
         include:
           - cider-ci/database_task-component.yml
           - cider-ci/ruby-bundle_task-component.yml
