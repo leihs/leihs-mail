@@ -9,13 +9,11 @@ scripts:
     body: java -jar target/leihs-mail.jar run
 
   server-is-running:
-    body: |
-      exit 0
     start_when:
       run server is executing:
         script_key: run-server
         states: [executing]
-    body:
+    body: |
       until test -f tmp/pid -a -n tmp/pid;
         do sleep 1;
       done
@@ -26,13 +24,11 @@ scripts:
         script_key: server-is-running
 
   shutdown-server:
-    body: |
-      exit 0
     start_when:
       test is terminal:
         script_key: test
         states: [aborted, defective, passed, failed, skipped]
-    body:
+    body: |
       PID="./tmp/pid"
       kill -9 $(cat "$PID")
       rm -f "$PID"
