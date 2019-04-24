@@ -6,4 +6,4 @@
 
 (defn stop [] (leihs.mail.send/interrupt-old!))
 
-(defn run [] (leihs.mail.main/-main "run"))
+(defn run [& args] (apply leihs.mail.main/-main "run" args))
