@@ -41,9 +41,11 @@
 
 (defn- prepare-email-message
   [email]
-  (-> email
-      (select-keys [:sender :email :subject :body])
-      (rename-keys {:sender :from, :email :to})))
+  (let [sender-address (:smtp_sender_address @settings/smtp-settings)]
+    (-> email
+        (select-keys [:from_address :email :subject :body])
+        (rename-keys {:from_address :from, :email :to})
+        (cond-> sender-address (assoc :sender sender-address)))))
 
 (defn- send-emails!
   [emails]

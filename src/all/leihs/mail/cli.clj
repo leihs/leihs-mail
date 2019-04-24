@@ -2,6 +2,8 @@
   (:refer-clojure :exclude [str keyword])
   (:require [clojure.tools.logging :as log]
             [clojure.tools.cli :as cli]
+            [clojure.spec.alpha :as spec]
+            [clojure.repl :refer [doc]]
             [leihs.core.core :refer [presence keyword str]]
             [leihs.core.url.jdbc :as jdbc-url]))
 
@@ -28,6 +30,17 @@
     :password (or (:password params) (System/getenv "PGPASSWORD"))
     :username (or (:username params) (System/getenv "PGUSER"))
     :port (or (:port params) (System/getenv "PGPORT"))))
+
+(spec/def ::database-url string?)
+(spec/def ::send-frequency-in-seconds integer?)
+(spec/def ::retry-frequency-in-seconds integer?)
+(spec/def ::maximum-trials integer?)
+(spec/def ::smtp-address (spec/or :nil nil? :string string?))
+(spec/def ::smtp-port (spec/or :nil nil? :string integer?))
+
+(comment
+  (spec/valid? ::send-frequency-in-seconds 10)
+  (spec/valid? ::database-url "foo"))
 
 (def cli-options
   [["-h" "--help"]
@@ -68,9 +81,9 @@
    [nil "--smtp-port LEIHS_MAIL_SMTP_PORT"
     "default: settings.smtp_port or 25"
     :default
-    (-> :LEIHS_MAIL_SMTP_PORT
-        get-from-env
-        Integer/parseInt)
+    (some-> :LEIHS_MAIL_SMTP_PORT
+            get-from-env
+            Integer/parseInt)
     :parse-fn #(Integer/parseInt %)]])
 
 (defn parse [args] (cli/parse-opts args cli-options :in-order true))

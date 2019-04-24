@@ -14,6 +14,9 @@
 (def maximum-trials (atom nil))
 
 (def settings (atom nil))
+(def smtp-settings (atom nil))
+
+(comment (map @settings))
 
 (defn- option-or-setting-or-default
   [kw options default]
@@ -43,6 +46,7 @@
               (sql/from :settings)
               sql/format
               (->> (jdbc/query (get-ds)))))
+  ; (reset! smtp-settings (select-keys @settings []))
   (reset-smtp-address options)
   (reset-smtp-port options)
   (->> options
