@@ -10,6 +10,7 @@
             [leihs.mail
              [cli :as cli]
              [send :as send]
+             [settings :as settings]
              [status :as status]]
             [clj-pid.core :as pid]
             [logbug.catcher :as catcher]))
@@ -43,12 +44,15 @@
 (defn- run
   [options]
   (catcher/snatch {:return-fn (fn [e] (System/exit -1))}
-                  (log/info "Invoking run with options: " options)
                   (shutdown/init options)
                   (let [status (status/init)]
                     (ds/init (:database-url options)
                              (:health-check-registry status)))
                   (send/run! options)
+                  (log/info "Invoking run with options: "
+                            (-> options
+                                (assoc :smtp-address @settings/smtp-address)
+                                (assoc :smtp-port @settings/smtp-port)))
                   (handle-pidfile)
                   nil))
 
