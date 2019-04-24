@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [str keyword])
   (:require [clojure.tools.logging :as log]
             [clojure.tools.cli :as cli]
-            [leihs.core.core :refer [presence str]]
+            [leihs.core.core :refer [presence keyword str]]
             [leihs.core.url.jdbc :as jdbc-url]))
 
 (def defaults
@@ -58,7 +58,7 @@
     :default (get-from-env :LEIHS_MAIL_SMTP_ADDRESS)]
    [nil "--smtp-port LEIHS_MAIL_SMTP_PORT"
     "default: settings.smtp_port or 25"
-    :default (get-from-env :LEIHS_MAIL_SMTP_PORT)
+    :default (log/spy (get-from-env :LEIHS_MAIL_SMTP_PORT))
     :parse-fn #(Integer/parseInt %)]])
 
 (defn parse [args] (cli/parse-opts args cli-options :in-order true))

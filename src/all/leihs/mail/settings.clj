@@ -1,5 +1,6 @@
 (ns leihs.mail.settings
-  (:require [camel-snake-kebab.core :as csk]
+  (:require [clojure.tools.logging :as log]
+            [camel-snake-kebab.core :as csk]
             [clojure.java.jdbc :as jdbc]
             [leihs.core
              [ds :refer [get-ds]]
@@ -15,8 +16,8 @@
 (def settings (atom nil))
 
 (defn- option-or-setting-or-default
-  [kw default]
-  (or (kw cli-options)
+  [kw options default]
+  (or (kw options)
       (->> kw
            name
            csk/->snake_case
@@ -26,13 +27,13 @@
 (defn reset-smtp-address
   [options]
   (as-> :smtp-address <>
-    (option-or-setting-or-default <> "localhost")
+    (option-or-setting-or-default <> options "localhost")
     (reset! smtp-address <>)))
 
 (defn reset-smtp-port
   [options]
   (as-> :smtp-port <>
-    (option-or-setting-or-default <> 25)
+    (option-or-setting-or-default <> options 25)
     (reset! smtp-port <>)))
 
 (defn init
