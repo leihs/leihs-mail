@@ -4,7 +4,7 @@
             [leihs.core
              [ds :refer [get-ds]]
              [sql :as sql]]
-            [leihs.mail.cli :refer [defaults]]))
+            [leihs.mail.cli :refer [cli-options]]))
 
 (def smtp-address (atom nil))
 (def smtp-port (atom nil))
@@ -15,8 +15,8 @@
 (def settings (atom nil))
 
 (defn- option-or-setting-or-default
-  [kw options default]
-  (or (kw options)
+  [kw default]
+  (or (kw cli-options)
       (->> kw
            name
            csk/->snake_case
@@ -26,13 +26,13 @@
 (defn reset-smtp-address
   [options]
   (as-> :smtp-address <>
-    (option-or-setting-or-default <> options "localhost")
+    (option-or-setting-or-default <> "localhost")
     (reset! smtp-address <>)))
 
 (defn reset-smtp-port
   [options]
   (as-> :smtp-port <>
-    (option-or-setting-or-default <> options 25)
+    (option-or-setting-or-default <> 25)
     (reset! smtp-port <>)))
 
 (defn init
