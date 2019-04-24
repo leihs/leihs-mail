@@ -94,14 +94,9 @@
          30])
       (sql/merge-where [:< :emails.trials 2])
       sql/format)
-  (-> (sql/insert-into :emails)
-      (sql/values [{(sql/quote-identifier :to) "foo@examples.com"}])
-      sql/format
-      ; (->> (jdbc/execute! (get-ds)))
-    )
   (postal/send-message {:host "localhost"}
-                       {:from "me@nitaai.com",
+                       {:from "bar@example.com",
                         :to ["foo@example.com"],
-                        :subject "matus local testing",
+                        :subject "Test.",
                         :body "Test.",
                         :X-Tra "Something else"}))
