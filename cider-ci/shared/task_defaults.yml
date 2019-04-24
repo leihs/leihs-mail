@@ -1,4 +1,5 @@
 task_defaults:
+  max_trials: 2
   traits:
     JDK 8: true
   environment_variables:
