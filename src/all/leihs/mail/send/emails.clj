@@ -4,7 +4,8 @@
             [clojure.tools.logging :as log]
             [leihs.core
              [ds :refer [get-ds]]
-             [sql :as sql]]
+             [sql :as sql]
+             [ring-exception :as exception]]
             [leihs.mail.settings :as settings]
             [logbug.catcher :as catcher]
             [logbug.thrown :as thrown]
@@ -56,7 +57,7 @@
                                                    :port @settings/smtp-port}))
                         (catch Exception e
                           (log/warn (-> e
-                                        .getCause
+                                        exception/get-cause
                                         thrown/to-string))
                           {:code 99,
                            :error (-> e
@@ -64,7 +65,7 @@
                                       .getName),
                            :message (.getMessage e)}))]
         (-> email
-            (prepare-email-row result)
+            (prepare-email-row (log/spy result))
             update-email!)))))
 
 (defn- send-new-emails! [] (send-emails! (get-new-emails)))

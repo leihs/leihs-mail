@@ -2,9 +2,6 @@ require 'spec_helper'
 require 'shared_spec'
 
 describe 'Sending of emails fails' do
-  it 'SMTP server not reachable' do
-  end
-
   it 'User does not exist' do
     email = FactoryBot.create(:email, :unsent)
     email.user.destroy
