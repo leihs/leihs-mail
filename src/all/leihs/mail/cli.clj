@@ -31,12 +31,12 @@
     :username (or (:username params) (System/getenv "PGUSER"))
     :port (or (:port params) (System/getenv "PGPORT"))))
 
-(spec/def ::database-url string?)
-(spec/def ::send-frequency-in-seconds integer?)
-(spec/def ::retry-frequency-in-seconds integer?)
-(spec/def ::maximum-trials integer?)
-(spec/def ::smtp-address (spec/or :nil nil? :string string?))
-(spec/def ::smtp-port (spec/or :nil nil? :string integer?))
+(spec/def ::database-url-val string?)
+(spec/def ::send-frequency-in-seconds-val integer?)
+(spec/def ::retry-frequency-in-seconds-val integer?)
+(spec/def ::maximum-trials-val integer?)
+(spec/def ::smtp-address-val (spec/or :nil nil? :string string?))
+(spec/def ::smtp-port-val (spec/or :nil nil? :string integer?))
 
 (comment
   (spec/valid? ::send-frequency-in-seconds 10)
