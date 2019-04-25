@@ -7,7 +7,7 @@ FactoryBot.define do
     user
     subject { Faker::Lorem.sentence }
     body { Faker::Lorem.paragraph }
-    sender { Faker::Internet.email }
+    from_address { Faker::Internet.email }
   end
 
   trait :unsent do

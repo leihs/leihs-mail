@@ -32,27 +32,11 @@ jobs:
     context:
       include: cider-ci/shared/task_defaults.yml
       task_defaults:
-        max_trials: 1
         include:
           - cider-ci/database_task-component.yml
           - cider-ci/fake-smtp-server_task-component.yml
           - cider-ci/ruby-bundle_task-component.yml
           - cider-ci/server_task-component.yml
           - cider-ci/uberjar_task-component.yml
-      tasks:
-        successful emails spec:
-          name: "Successful emails spec"
-          scripts:
-            test:
-              body: |
-                set -eux
-                export PATH=~/.rubies/$RUBY/bin:$PATH
-                bundle exec rspec ./spec/successful_emails_spec.rb
-        failed emails spec:
-          name: "Failed emails spec"
-          scripts:
-            test:
-              body: |
-                set -eux
-                export PATH=~/.rubies/$RUBY/bin:$PATH
-                bundle exec rspec ./spec/failed_emails_spec.rb
+      generate_tasks:
+        include_match: spec/fake_smtp/.*_spec.rb

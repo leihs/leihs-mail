@@ -16,7 +16,12 @@
 (def settings (atom nil))
 (def smtp-settings (atom nil))
 
-(comment (map @settings))
+(comment (->> (filter #(->> %
+                            first
+                            name
+                            (re-seq #"smtp_.*"))
+                @settings)
+              (into {})))
 
 (defn- option-or-setting-or-default
   [kw options default]
@@ -39,14 +44,25 @@
     (option-or-setting-or-default <> options 25)
     (reset! smtp-port <>)))
 
+(defn reset-smtp-settings
+  []
+  (reset! smtp-settings
+          (->> (filter #(->> %
+                             first
+                             name
+                             (re-seq #"smtp_.*"))
+                 @settings)
+               (into {}))))
+
 (defn init
   [options]
   (reset! settings
           (-> (sql/select :*)
               (sql/from :settings)
               sql/format
-              (->> (jdbc/query (get-ds)))))
-  ; (reset! smtp-settings (select-keys @settings []))
+              (->> (jdbc/query (get-ds)))
+              first))
+  (reset-smtp-settings)
   (reset-smtp-address options)
   (reset-smtp-port options)
   (->> options
