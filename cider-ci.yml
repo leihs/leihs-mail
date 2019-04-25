@@ -30,6 +30,8 @@ jobs:
         type: branch
         include_match: ^.*$
     context:
+      generate_tasks:
+        include_match: spec/fake_smtp/.*_spec.rb
       include: cider-ci/shared/task_defaults.yml
       task_defaults:
         include:
@@ -38,5 +40,9 @@ jobs:
           - cider-ci/ruby-bundle_task-component.yml
           - cider-ci/server_task-component.yml
           - cider-ci/uberjar_task-component.yml
-      generate_tasks:
-        include_match: spec/fake_smtp/.*_spec.rb
+        scripts:
+          test:
+            body: |
+              set -eux
+              export PATH=~/.rubies/$RUBY/bin:$PATH
+              bundle exec rspec $CIDER_CI_TASK_FILE
