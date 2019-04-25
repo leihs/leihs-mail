@@ -12,6 +12,6 @@ describe 'Sending of emails fails' do
     expect(email.error).to eq 'com.sun.mail.util.MailConnectException'
     expect(email.message).to match /Couldn't connect to host, port: localhost, \d+; timeout -1/
     expect(Email.count).to eq 1
-    assert_not_received_email(email.sender, email.user.email)
+    assert_not_received_email(email.from_address, email.user.email)
   end
 end
