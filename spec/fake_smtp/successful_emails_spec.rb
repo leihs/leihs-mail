@@ -28,7 +28,7 @@ describe 'Sending of emails succeeds' do
       expect(email.error).to eq 'SUCCESS'
       expect(email.message).to eq 'messages sent'
       expect(Email.count).to eq 1
-      assert_received_email(email.sender, email.user.email)
+      assert_received_email(email.from_address, email.user.email)
     end
   end
 

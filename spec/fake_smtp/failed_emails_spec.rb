@@ -13,7 +13,7 @@ describe 'Sending of emails fails' do
     expect(email.error).to eq 'java.lang.Exception'
     expect(email.message).to eq 'message needs at least :from and :to or :from and :bcc'
     expect(Email.count).to eq 1
-    assert_not_received_email(email.sender, '')
+    assert_not_received_email(email.from_address, '')
   end
 
   it 'maximum trials reached' do
@@ -26,6 +26,6 @@ describe 'Sending of emails fails' do
     expect(email_2.error).to eq email.error
     expect(email_2.message).to eq email.message
     expect(Email.count).to eq 1
-    assert_not_received_email(email.sender, email.user.email)
+    assert_not_received_email(email.from_address, email.user.email)
   end
 end
