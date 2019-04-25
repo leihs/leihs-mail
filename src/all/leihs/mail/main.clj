@@ -3,6 +3,7 @@
   (:refer-clojure :exclude [str keyword])
   (:require [clojure.pprint :refer [pprint]]
             [clojure.tools.logging :as log]
+            [clojure.spec.alpha :as spec]
             [leihs.core
              [core :refer [str keyword]]
              [ds :as ds]
@@ -14,6 +15,8 @@
              [status :as status]]
             [clj-pid.core :as pid]
             [logbug.catcher :as catcher]))
+
+(spec/check-asserts true)
 
 (defn handle-pidfile
   []

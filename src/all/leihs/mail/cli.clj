@@ -39,17 +39,19 @@
 (spec/def ::smtp-port-val (spec/or :nil nil? :string integer?))
 
 (comment
-  (spec/valid? ::send-frequency-in-seconds 10)
-  (spec/valid? ::database-url "foo"))
+  (spec/assert ::send-frequency-in-seconds-val 10)
+  (spec/valid? ::database-url-val "foo"))
 
 (def cli-options
   [["-h" "--help"]
    ["-d" "--database-url LEIHS_DATABASE_URL"
     (str "default: " (:LEIHS_DATABASE_URL defaults))
     :default
-    (-> (env-or-default :LEIHS_DATABASE_URL)
-        jdbc-url/dissect
-        extend-pg-params)
+    (->> :LEIHS_DATABASE_URL
+         env-or-default
+         (spec/assert ::database-url-val)
+         jdbc-url/dissect
+         extend-pg-params)
     :parse-fn
     #(-> %
          jdbc-url/dissect
@@ -57,33 +59,40 @@
    [nil "--send-frequency-in-seconds LEIHS_MAIL_SEND_FREQUENCY_IN_SECONDS"
     (str "default: " (:LEIHS_MAIL_SEND_FREQUENCY_IN_SECONDS defaults))
     :default
-    (-> :LEIHS_MAIL_SEND_FREQUENCY_IN_SECONDS
-        env-or-default
-        Integer/parseInt)
+    (->> :LEIHS_MAIL_SEND_FREQUENCY_IN_SECONDS
+         env-or-default
+         Integer/parseInt
+         (spec/assert ::send-frequency-in-seconds-val))
     :parse-fn #(Integer/parseInt %)]
    [nil "--retry-frequency-in-seconds LEIHS_MAIL_RETRY_FREQUENCY_IN_SECONDS"
     (str "default: " (:LEIHS_MAIL_RETRY_FREQUENCY_IN_SECONDS defaults))
     :default
-    (-> :LEIHS_MAIL_RETRY_FREQUENCY_IN_SECONDS
-        env-or-default
-        Integer/parseInt)
+    (->> :LEIHS_MAIL_RETRY_FREQUENCY_IN_SECONDS
+         env-or-default
+         Integer/parseInt
+         (spec/assert ::retry-frequency-in-seconds-val))
     :parse-fn #(Integer/parseInt %)]
    [nil "--maximum-trials LEIHS_MAIL_MAXIMUM_TRIALS"
     (str "default: " (:LEIHS_MAIL_MAXIMUM_TRIALS defaults))
     :default
-    (-> :LEIHS_MAIL_MAXIMUM_TRIALS
-        env-or-default
-        Integer/parseInt)
+    (->> :LEIHS_MAIL_MAXIMUM_TRIALS
+         env-or-default
+         Integer/parseInt
+         (spec/assert ::maximum-trials-val))
     :parse-fn #(Integer/parseInt %)]
    [nil "--smtp-address LEIHS_MAIL_SMTP_ADDRESS"
     "default: settings.smtp_address or localhost"
-    :default (get-from-env :LEIHS_MAIL_SMTP_ADDRESS)]
+    :default
+    (->> :LEIHS_MAIL_SMTP_ADDRESS
+         get-from-env
+         (spec/assert ::smtp-address-val))]
    [nil "--smtp-port LEIHS_MAIL_SMTP_PORT"
     "default: settings.smtp_port or 25"
     :default
-    (some-> :LEIHS_MAIL_SMTP_PORT
-            get-from-env
-            Integer/parseInt)
+    (spec/assert ::smtp-port-val
+                 (some-> :LEIHS_MAIL_SMTP_PORT
+                         get-from-env
+                         Integer/parseInt))
     :parse-fn #(Integer/parseInt %)]])
 
 (defn parse [args] (cli/parse-opts args cli-options :in-order true))
