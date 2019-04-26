@@ -10,8 +10,8 @@
 (def defaults
   {:LEIHS_DATABASE_URL
      "jdbc:postgresql://leihs:leihs@localhost:5432/leihs?min-pool-size=1&max-pool-size=5",
-   :LEIHS_MAIL_SEND_FREQUENCY_IN_SECONDS "5",
-   :LEIHS_MAIL_RETRY_FREQUENCY_IN_SECONDS "10",
+   :LEIHS_MAIL_SEND_FREQUENCY_IN_SECONDS "60",
+   :LEIHS_MAIL_RETRY_FREQUENCY_IN_SECONDS "300",
    :LEIHS_MAIL_MAXIMUM_TRIALS "2",
    :LEIHS_MAIL_SMTP_ADDRESS "localhost",
    :LEIHS_MAIL_SMTP_PORT "25"})

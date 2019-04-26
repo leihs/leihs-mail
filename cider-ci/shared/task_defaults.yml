@@ -7,6 +7,9 @@ task_defaults:
     DATABASE_NAME: leihs_mail_{{CIDER_CI_TRIAL_ID}}
     LEIHS_DATABASE_URL: "jdbc:postgresql://localhost/{{DATABASE_NAME}}?max-pool-size=5"
     LEIHS_SECRET: '{{CIDER_CI_TRIAL_ID}}'
+    LEIHS_MAIL_SEND_FREQUENCY_IN_SECONDS: "5"
+    LEIHS_MAIL_RETRY_FREQUENCY_IN_SECONDS: "10"
+    LEIHS_MAIL_MAXIMUM_TRIALS: "2"
     RAILS_ENV: test
     RUBY: '{{RUBY_ENGINE}}-{{RUBY_VERSION}}'
     RUBY_ENGINE: ruby
