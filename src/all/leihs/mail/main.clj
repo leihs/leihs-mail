@@ -1,11 +1,12 @@
 (ns leihs.mail.main
   (:gen-class)
   (:refer-clojure :exclude [str keyword])
-  (:require [clojure.pprint :refer [pprint]]
-            [clojure.tools.logging :as log]
+  (:require [clj-pid.core :as pid]
+            [clojure.pprint :refer [pprint]]
             [clojure.spec.alpha :as spec]
+            [clojure.tools.logging :as log]
             [leihs.core
-             [core :refer [str keyword]]
+             [core :refer [keyword str]]
              [ds :as ds]
              [shutdown :as shutdown]]
             [leihs.mail
@@ -13,7 +14,6 @@
              [send :as send]
              [settings :as settings]
              [status :as status]]
-            [clj-pid.core :as pid]
             [logbug.catcher :as catcher]))
 
 (spec/check-asserts true)
@@ -44,6 +44,22 @@
     flatten
     (clojure.string/join \newline)))
 
+(spec/def ::database-url map?)
+(spec/def ::send-frequency-in-seconds integer?)
+(spec/def ::retry-frequency-in-seconds integer?)
+(spec/def ::maximum-trials integer?)
+(spec/def ::smtp-address string?)
+(spec/def ::smtp-port integer?)
+
+(spec/def ::options
+  (spec/keys :req-un
+             [::database-url
+              ::send-frequency-in-seconds
+              ::retry-frequency-in-seconds
+              ::maximum-trials
+              ::smtp-address
+              ::smtp-port]))
+
 (defn- run
   [options]
   (catcher/snatch {:return-fn (fn [e] (System/exit -1))}
@@ -55,7 +71,8 @@
                   (log/info "Invoking run with options: "
                             (-> options
                                 (assoc :smtp-address @settings/smtp-address)
-                                (assoc :smtp-port @settings/smtp-port)))
+                                (assoc :smtp-port @settings/smtp-port)
+                                (->> (spec/assert ::options))))
                   (handle-pidfile)
                   nil))
 
