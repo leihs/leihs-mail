@@ -31,6 +31,7 @@
                   [org.bouncycastle/bcprov-jdk15on "1.54"]
                   [org.clojure/data.generators "0.1.2"]
                   [org.clojure/java.jdbc "0.7.8"]
+                  [org.clojure/test.check "0.9.0" :scope "test"]
                   [org.clojure/tools.cli "0.3.7"]
                   [org.clojure/tools.logging "0.4.1"]
                   [org.clojure/tools.namespace "0.3.0-alpha4"]
