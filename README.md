@@ -60,6 +60,11 @@ One can run the application with the following cli options or by setting the res
 
 The current defaults are as [follows](https://github.com/leihs/leihs-mail/blob/master/src/all/leihs/mail/cli.clj#L8-L15).
 
+The value of each option is basically determined in the following order:
+1. cli option
+2. environmental variable
+3. default
+
 `LEIHS_MAIL_SMTP_ADDRESS` and `LEIHS_MAIL_SMTP_PORT` are handled specially. Their value is determined in the following order:
 1. cli option
 2. environmental variable
