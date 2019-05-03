@@ -1,18 +1,8 @@
 jobs:
   specs without fake smtp server:
     name: Run specs WITHOUT fake smtp server
-    run_when:
-      any branch has been updated:
-        type: branch
-        include_match: ^.*$
+    include: cider-ci/specs_job-defaults.yml
     context:
-      include: cider-ci/shared/task_defaults.yml
-      task_defaults:
-        include:
-          - cider-ci/database_task-component.yml
-          - cider-ci/ruby-bundle_task-component.yml
-          - cider-ci/server_task-component.yml
-          - cider-ci/uberjar_task-component.yml
       tasks:
         unreachable smtp server spec:
           name: "Unreachable smtp server spec"
@@ -25,21 +15,10 @@ jobs:
 
   specs with fake smtp server:
     name: Run specs WITH fake smtp server
-    run_when:
-      any branch has been updated:
-        type: branch
-        include_match: ^.*$
+    include: cider-ci/specs_job-defaults.yml
     context:
       generate_tasks:
         include_match: spec/fake_smtp/.*_spec.rb
-      include: cider-ci/shared/task_defaults.yml
-      task_defaults:
-        include:
-          - cider-ci/database_task-component.yml
-          - cider-ci/fake-smtp-server_task-component.yml
-          - cider-ci/ruby-bundle_task-component.yml
-          - cider-ci/server_task-component.yml
-          - cider-ci/uberjar_task-component.yml
         scripts:
           test:
             body: |

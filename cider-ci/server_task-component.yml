@@ -1,6 +1,6 @@
 scripts:
 
-  run-server:
+  run-mail-server:
     start_when:
       uberjar has been built:
         script_key: build-uberjar
@@ -9,11 +9,11 @@ scripts:
     ignore_state: true # because we kill the server mercilessly
     body: java -jar target/leihs-mail.jar run
 
-  server-is-running:
+  mail-server-is-running:
     timeout: 30 seconds
     start_when:
-      run server is executing:
-        script_key: run-server
+      run mail server is executing:
+        script_key: run-mail-server
         states: [executing]
     body: |
       until test -f tmp/server_pid -a -n tmp/server_pid;
@@ -22,8 +22,8 @@ scripts:
 
   test:
     start_when:
-      server is running:
-        script_key: server-is-running
+      mail server is running:
+        script_key: mail-server-is-running
 
   shutdown-server:
     start_when:
