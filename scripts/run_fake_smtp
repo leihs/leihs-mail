@@ -9,8 +9,13 @@ fi
 echo "smtp port: $LEIHS_MAIL_SMTP_PORT"
 echo "pop3 port: $LEIHS_MAIL_POP3_PORT"
 
+mkdir -p fake-mailbox
 mkdir -p log
 touch log/fake_smtp.log
 echo '' > log/fake_smtp.log
 
-bundle exec post_office -l log/fake_smtp.log -s $LEIHS_MAIL_SMTP_PORT -p $LEIHS_MAIL_POP3_PORT
+bundle exec post_office \
+  -l log/fake_smtp.log \
+  -s $LEIHS_MAIL_SMTP_PORT \
+  -p $LEIHS_MAIL_POP3_PORT \
+  -m './fake-mailbox'
