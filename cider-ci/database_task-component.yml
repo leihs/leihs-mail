@@ -23,6 +23,5 @@ scripts:
         script_key: test
         states: [aborted, defective, passed, failed, skipped]
       shutdown server is in termial state:
-        script_key: shutdown-server
+        script_key: shutdown-mail-server
         states: [aborted, defective, passed, failed, skipped]
-

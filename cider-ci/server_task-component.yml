@@ -1,13 +1,23 @@
+traits:
+  JDK: true
+
 scripts:
 
   run-mail-server:
     start_when:
       uberjar has been built:
-        script_key: build-uberjar
+        script_key: build-mail-uberjar
       database has been created:
         script_key: create-database
     ignore_state: true # because we kill the server mercilessly
-    body: java -jar target/leihs-mail.jar run
+    body: |
+      set -eux
+      cd $LEIHS_MAIL_DIR
+      java -jar target/leihs-mail.jar run
+
+      # exit OK if server was killed via SIGTERM!
+      test $? -eq 143 && { echo OK; exit 0 ;} || { echo FAILED; exit 1 ;}
+
 
   mail-server-is-running:
     timeout: 30 seconds
@@ -16,6 +26,8 @@ scripts:
         script_key: run-mail-server
         states: [executing]
     body: |
+      set -eux
+      cd $LEIHS_MAIL_DIR
       until test -f tmp/server_pid -a -n tmp/server_pid;
         do sleep 1;
       done
@@ -25,12 +37,14 @@ scripts:
       mail server is running:
         script_key: mail-server-is-running
 
-  shutdown-server:
+  shutdown-mail-server:
     start_when:
       test is terminal:
         script_key: test
         states: [aborted, defective, passed, failed, skipped]
     body: |
+      set -eux
+      cd $LEIHS_MAIL_DIR
       SERVER_PID="./tmp/server_pid"
-      kill -9 $(cat "$SERVER_PID")
+      kill -SIGTERM $(cat "$SERVER_PID")
       rm -f "$SERVER_PID"

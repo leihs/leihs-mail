@@ -1,11 +1,40 @@
+traits:
+  JDK: true
+  S3-Cache: true
+
 scripts:
-  build-uberjar:
+  build-mail-uberjar:
     timeout: 10 minutes
     exclusive_executor_resource: build-leihs-mail-jar
     body: |
       #!/usr/bin/env bash
-      set -eux
-      export BOOT_VERSION=2.8.3
-      export BOOT_CLOJURE_VERSION=1.9.0
-      chmod 755 ./bin/boot
-      ./bin/boot --no-colors uberjar
+      set -euxo
+      cd $LEIHS_MAIL_DIR
+
+      DIGEST="$(git log -n 1 HEAD --pretty=%T)"
+      UBERJAR_PATH=${LEIHS_MAIL_DIR}/target/leihs-mail.jar
+      S3_UBERJAR_FILE_NAME="leihs-mail_${DIGEST}.jar"
+
+      if [ -z ${S3_CI_ENDPOINT:+x} ] ; then
+        echo "WARN: S3_CI_ENDPOINT is not set; caching can not be used"
+      else
+        if [ "$(aws --quiet --only-show-errors --no-progress --endpoint $S3_CI_ENDPOINT $AWS_CLIENT_EXTRA_ARGS s3 cp s3://${S3_CI_CACHE_BUCKET}/${S3_UBERJAR_FILE_NAME} ${UBERJAR_PATH})" ]; then
+          echo "INFO: Rerrieved uberjar from s3 cache"
+        else
+          echo "INFO: No S3 cached uberjar found "
+        fi
+      fi
+
+      if [ ! -f ${UBERJAR_PATH} ]; then
+        echo "INFO: building uberjar now"
+        cd $LEIHS_MAIL_DIR
+        chmod 755 ./bin/boot
+        ./bin/boot --no-colors uberjar
+      fi
+
+      if [ ! -z ${S3_CI_ENDPOINT:+x} ] ; then
+        if [ ! "$(aws --quiet --only-show-errors --no-progress --endpoint $S3_CI_ENDPOINT $AWS_CLIENT_EXTRA_ARGS s3 cp s3://${S3_CI_CACHE_BUCKET}/${S3_UBERJAR_FILE_NAME} ${UBERJAR_PATH})" ]; then
+          echo "INFO: No S3 cached uberjar found; uploading ours now"
+          aws --endpoint $S3_CI_ENDPOINT $AWS_CLIENT_EXTRA_ARGS s3 cp ${UBERJAR_PATH} s3://${S3_CI_CACHE_BUCKET}/${S3_UBERJAR_FILE_NAME}
+        fi
+      fi
