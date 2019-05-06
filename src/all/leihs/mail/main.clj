@@ -78,13 +78,13 @@
 
 (defn -main
   [& args]
-  (let [{:keys [options arguments summary]} (cli/parse args)]
+  (let [{:keys [options summary]} (cli/parse (rest args))]
     (letfn [(print-main-usage-summary
               []
               (println (main-usage summary {:args args, :options options})))]
       (if (:help options)
         (print-main-usage-summary)
-        (case (-> arguments
+        (case (-> args
                   first
                   keyword)
           :run (run options)
