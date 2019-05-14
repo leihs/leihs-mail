@@ -3,6 +3,11 @@ def assert_received_email(from, to)
   expect(system "grep '#{s}' #{LOG_FILE_PATH}").to be true
 end
 
+def assert_domain(domain)
+  e = "EHLO #{domain}"
+  expect(system "grep '#{e}' #{LOG_FILE_PATH}").to be true
+end
+
 def assert_not_received_email(from, to)
   s = "Received mail from <#{from}> with recipient <#{to}>"
   expect(system "grep '#{s}' #{LOG_FILE_PATH}").to be false

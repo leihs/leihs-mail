@@ -3,12 +3,14 @@
             [camel-snake-kebab.core :as csk]
             [clojure.java.jdbc :as jdbc]
             [leihs.core
+             [core :refer [presence]]
              [ds :refer [get-ds]]
              [sql :as sql]]
             [leihs.mail.cli :refer [cli-options]]))
 
 (def smtp-address (atom nil))
 (def smtp-port (atom nil))
+(def smtp-domain (atom nil))
 (def send-frequency-in-seconds (atom nil))
 (def retry-frequency-in-seconds (atom nil))
 (def maximum-trials (atom nil))
@@ -44,6 +46,12 @@
     (option-or-setting-or-default <> options 25)
     (reset! smtp-port <>)))
 
+(defn reset-smtp-domain
+  [options]
+  (as-> :smtp-domain <>
+    (option-or-setting-or-default <> options nil)
+    (reset! smtp-domain <>)))
+
 (defn reset-smtp-settings
   []
   (reset! smtp-settings
@@ -65,6 +73,7 @@
   (reset-smtp-settings)
   (reset-smtp-address options)
   (reset-smtp-port options)
+  (reset-smtp-domain options)
   (->> options
        :send-frequency-in-seconds
        (reset! send-frequency-in-seconds))

@@ -37,10 +37,10 @@
 (spec/def ::maximum-trials-val integer?)
 (spec/def ::smtp-address-val (spec/or :nil nil? :string string?))
 (spec/def ::smtp-port-val (spec/or :nil nil? :string integer?))
+(spec/def ::smtp-domain-val (spec/or :nil nil? :string string?))
 
-(comment
-  (spec/assert ::send-frequency-in-seconds-val 10)
-  (spec/valid? ::database-url-val "foo"))
+(comment (spec/assert ::send-frequency-in-seconds-val 10)
+         (spec/valid? ::database-url-val "foo"))
 
 (def cli-options
   [["-h" "--help"]
@@ -93,6 +93,12 @@
                  (some-> :LEIHS_MAIL_SMTP_PORT
                          get-from-env
                          Integer/parseInt))
-    :parse-fn #(Integer/parseInt %)]])
+    :parse-fn #(Integer/parseInt %)]
+   [nil "--smtp-domain LEIHS_MAIL_SMTP_DOMAIN"
+    "default: settings.smtp_domain or nil"
+    :default
+    (->> :LEIHS_MAIL_SMTP_DOMAIN
+         get-from-env
+         (spec/assert ::smtp-domain-val))]])
 
 (defn parse [args] (cli/parse-opts args cli-options :in-order true))

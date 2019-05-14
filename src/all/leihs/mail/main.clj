@@ -50,6 +50,7 @@
 (spec/def ::maximum-trials integer?)
 (spec/def ::smtp-address string?)
 (spec/def ::smtp-port integer?)
+(spec/def ::smtp-domain (spec/or :nil nil? :string string?))
 
 (spec/def ::options
   (spec/keys :req-un
@@ -58,7 +59,8 @@
               ::retry-frequency-in-seconds
               ::maximum-trials
               ::smtp-address
-              ::smtp-port]))
+              ::smtp-port
+              ::smtp-domain]))
 
 (defn- run
   [options]

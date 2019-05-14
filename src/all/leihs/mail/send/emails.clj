@@ -55,8 +55,10 @@
       (log/debug (str "sending email to: " (:email email)))
       (let [result (try (->> email
                              prepare-email-message
-                             (postal/send-message {:host @settings/smtp-address,
-                                                   :port @settings/smtp-port}))
+                             (postal/send-message
+                               {:host @settings/smtp-address,
+                                :port @settings/smtp-port,
+                                :localhost @settings/smtp-domain}))
                         (catch Exception e
                           (log/warn (-> e
                                         exception/get-cause

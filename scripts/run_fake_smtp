@@ -15,6 +15,7 @@ touch log/fake_smtp.log
 echo '' > log/fake_smtp.log
 
 bundle exec post_office \
+  -v \
   -l log/fake_smtp.log \
   -s $LEIHS_MAIL_SMTP_PORT \
   -p $LEIHS_MAIL_POP3_PORT \
