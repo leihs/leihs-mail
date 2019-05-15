@@ -3,7 +3,7 @@ require 'shared_spec'
 
 describe 'Sending of emails succeeds (with domain)' do
   it '1st trial' do
-    Setting.create(smtp_domain: SMTP_DOMAIN)
+    FactoryBot.create(:setting, smtp_domain: SMTP_DOMAIN)
 
     email = FactoryBot.create(:email, :unsent)
     sleep(SEND_FREQUENCY_IN_SECONDS + 1)
