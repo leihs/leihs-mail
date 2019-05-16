@@ -11,6 +11,7 @@ jobs:
               body: |
                 set -eux
                 export PATH=~/.rubies/$RUBY/bin:$PATH
+                export LEIHS_MAIL_SMTP_DOMAIN="example.com"
                 bundle exec rspec ./spec/smtp_server_unreachable_spec.rb
 
   specs with fake smtp server:
@@ -24,6 +25,7 @@ jobs:
             body: |
               set -eux
               export PATH=~/.rubies/$RUBY/bin:$PATH
+              export LEIHS_MAIL_SMTP_DOMAIN="example.com"
               bundle exec rspec $CIDER_CI_TASK_FILE
 
   build-mail-uberjar:
