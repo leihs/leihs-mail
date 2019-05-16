@@ -47,6 +47,14 @@
         (rename-keys {:from_address :from, :email :to})
         (cond-> sender-address (assoc :sender sender-address)))))
 
+(defn host-settings
+  []
+  (cond-> {:host (settings/smtp-address),
+           :port (settings/smtp-port),
+           :localhost (settings/smtp-domain)}
+    (settings/smtp-enable-starttls-auto) (merge {:starttls.required true,
+                                                 :starttls.enable true})))
+
 (defn- send-emails!
   [emails]
   (catcher/snatch
@@ -55,11 +63,7 @@
       (log/debug (str "sending email to: " (:email email)))
       (let [result (try (->> email
                              prepare-email-message
-                             (postal/send-message
-                               {:host (settings/smtp-address),
-                                :port (settings/smtp-port),
-                                :localhost (settings/smtp-domain),
-                                :tls (settings/smtp-enable-starttls-auto)}))
+                             (postal/send-message (host-settings)))
                         (catch Exception e
                           (log/warn (-> e
                                         exception/get-cause
@@ -91,18 +95,13 @@
 
 (defn send! [] (send-new-emails!) (retry-failed-emails!))
 
-(comment
-  (-> email-base-sqlmap
-      (sql/merge-where [:> :emails.code 0])
-      (sql/merge-where
-        [:>
-         (sql/call :extract (sql/raw "minute from (now() - emails.updated_at)"))
-         30])
-      (sql/merge-where [:< :emails.trials 2])
-      sql/format)
-  (postal/send-message {:host "localhost"}
-                       {:from "bar@example.com",
-                        :to ["foo@example.com"],
-                        :subject "Test.",
-                        :body "Test.",
-                        :X-Tra "Something else"}))
+(comment (postal/send-message {:host "localhost",
+                               :port 25,
+                               ; :starttls.enable true
+                               ; :starttls.required true
+                               }
+                              {:from "bar@example.com",
+                               :to ["foo@example.com"],
+                               :subject "Test.",
+                               :body "Test.",
+                               :X-Tra "Something else"}))

@@ -28,4 +28,19 @@ describe 'Sending of emails fails' do
     expect(Email.count).to eq 1
     assert_not_received_email(email.from_address, email.user.email)
   end
+
+  it 'smtp server does not support TLS' do
+    FactoryBot.create(:setting, smtp_enable_starttls_auto: true)
+
+    email = FactoryBot.create(:email, :unsent)
+
+    sleep(SEND_FREQUENCY_IN_SECONDS + 1)
+    email.reload
+    expect(email.trials).to be > 0
+    expect(email.code).to eq 99
+    expect(email.error).to eq 'javax.mail.MessagingException'
+    expect(email.message).to eq 'STARTTLS is required but host does not support STARTTLS'
+    expect(Email.count).to eq 1
+    assert_not_received_email(email.from_address, email.user.email)
+  end
 end
