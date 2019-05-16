@@ -26,6 +26,7 @@
       (->> kw
            name
            csk/->snake_case
+           keyword
            (get (settings)))
       default))
 
