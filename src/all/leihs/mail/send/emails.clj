@@ -58,7 +58,8 @@
                              (postal/send-message
                                {:host (settings/smtp-address),
                                 :port (settings/smtp-port),
-                                :localhost (settings/smtp-domain)}))
+                                :localhost (settings/smtp-domain),
+                                :tls (settings/smtp-enable-starttls-auto)}))
                         (catch Exception e
                           (log/warn (-> e
                                         exception/get-cause

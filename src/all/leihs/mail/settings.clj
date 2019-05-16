@@ -38,6 +38,8 @@
 
 (defn smtp-sender-address [] (:smtp_sender_address (settings)))
 
+(defn smtp-enable-starttls-auto [] (:smtp_enable_starttls_auto (settings)))
+
 (defn init
   [opts]
   (reset! options opts)
