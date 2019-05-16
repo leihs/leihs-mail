@@ -21,6 +21,7 @@ jobs:
       generate_tasks:
         include_match: spec/fake_smtp/.*_spec.rb
       task_defaults:
+        include: cider-ci/fake-smtp-server_task-component.yml
         scripts:
           test:
             body: |
