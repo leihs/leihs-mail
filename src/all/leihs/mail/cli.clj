@@ -7,6 +7,8 @@
             [leihs.core.core :refer [presence keyword str]]
             [leihs.core.url.jdbc :as jdbc-url]))
 
+(def options (atom nil))
+
 (def defaults
   {:LEIHS_DATABASE_URL
      "jdbc:postgresql://leihs:leihs@localhost:5432/leihs?min-pool-size=1&max-pool-size=5",
@@ -35,9 +37,12 @@
 (spec/def ::send-frequency-in-seconds-val integer?)
 (spec/def ::retry-frequency-in-seconds-val integer?)
 (spec/def ::maximum-trials-val integer?)
+; -----------------------------------------------------------------------------
+; nil is possible, because these options may get their value from db (settings)
 (spec/def ::smtp-address-val (spec/or :nil nil? :string string?))
 (spec/def ::smtp-port-val (spec/or :nil nil? :string integer?))
 (spec/def ::smtp-domain-val (spec/or :nil nil? :string string?))
+; -----------------------------------------------------------------------------
 
 (comment (spec/assert ::send-frequency-in-seconds-val 10)
          (spec/valid? ::database-url-val "foo"))

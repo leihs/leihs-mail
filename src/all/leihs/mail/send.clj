@@ -12,8 +12,8 @@
 (defn- send-loop
   []
   (while (not (.isInterrupted (Thread/currentThread)))
-    (Thread/sleep (* @settings/send-frequency-in-seconds 1000))
-    (emails/send!)))
+         (Thread/sleep (* @settings/send-frequency-in-seconds 1000))
+         (emails/send!)))
 
 (defn interrupt-old!
   []
@@ -34,10 +34,6 @@
   (.stop @send-loop-thread)
   (reset! send-loop-thread nil))
 
-(defn run! [options] (interrupt-old!) (settings/init options) (start-new!))
+(defn run! [options] (interrupt-old!) (start-new!))
 
-(comment
-  (run!)
-  (interrupt-old!)
-  (stop-old!)
-  (.isAlive @send-loop-thread))
+(comment (run!) (interrupt-old!) (stop-old!) (.isAlive @send-loop-thread))

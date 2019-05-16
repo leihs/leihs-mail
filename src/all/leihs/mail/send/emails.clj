@@ -41,7 +41,7 @@
 
 (defn- prepare-email-message
   [email]
-  (let [sender-address (:smtp_sender_address @settings/smtp-settings)]
+  (let [sender-address (settings/smtp-sender-address)]
     (-> email
         (select-keys [:from_address :email :subject :body])
         (rename-keys {:from_address :from, :email :to})
@@ -56,9 +56,9 @@
       (let [result (try (->> email
                              prepare-email-message
                              (postal/send-message
-                               {:host @settings/smtp-address,
-                                :port @settings/smtp-port,
-                                :localhost @settings/smtp-domain}))
+                               {:host (settings/smtp-address),
+                                :port (settings/smtp-port),
+                                :localhost (settings/smtp-domain)}))
                         (catch Exception e
                           (log/warn (-> e
                                         exception/get-cause

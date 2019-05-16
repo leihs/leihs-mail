@@ -65,6 +65,7 @@
 (defn- run
   [options]
   (catcher/snatch {:return-fn (fn [e] (System/exit -1))}
+                  (settings/init options)
                   (shutdown/init options)
                   (let [status (status/init)]
                     (ds/init (:database-url options)
@@ -72,8 +73,8 @@
                   (send/run! options)
                   (log/info "Invoking run with options: "
                             (-> options
-                                (assoc :smtp-address @settings/smtp-address)
-                                (assoc :smtp-port @settings/smtp-port)
+                                (assoc :smtp-address (settings/smtp-address))
+                                (assoc :smtp-port (settings/smtp-port))
                                 (->> (spec/assert ::options))))
                   (handle-pidfile)
                   nil))

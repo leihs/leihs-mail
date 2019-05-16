@@ -5,81 +5,47 @@
             [leihs.core
              [core :refer [presence]]
              [ds :refer [get-ds]]
-             [sql :as sql]]
-            [leihs.mail.cli :refer [cli-options]]))
+             [sql :as sql]]))
 
-(def smtp-address (atom nil))
-(def smtp-port (atom nil))
-(def smtp-domain (atom nil))
+(def options (atom nil))
 (def send-frequency-in-seconds (atom nil))
 (def retry-frequency-in-seconds (atom nil))
 (def maximum-trials (atom nil))
 
-(def settings (atom nil))
-(def smtp-settings (atom nil))
-
-(comment (->> (filter #(->> %
-                            first
-                            name
-                            (re-seq #"smtp_.*"))
-                @settings)
-              (into {})))
+(defn settings
+  []
+  (-> (sql/select :*)
+      (sql/from :settings)
+      sql/format
+      (->> (jdbc/query (get-ds)))
+      first))
 
 (defn- option-or-setting-or-default
-  [kw options default]
-  (or (kw options)
+  [kw default]
+  (or (kw @options)
       (->> kw
            name
            csk/->snake_case
-           (get @settings))
+           (get (settings)))
       default))
 
-(defn reset-smtp-address
-  [options]
-  (as-> :smtp-address <>
-    (option-or-setting-or-default <> options "localhost")
-    (reset! smtp-address <>)))
+(defn smtp-address [] (option-or-setting-or-default :smtp-address "localhost"))
 
-(defn reset-smtp-port
-  [options]
-  (as-> :smtp-port <>
-    (option-or-setting-or-default <> options 25)
-    (reset! smtp-port <>)))
+(defn smtp-port [] (option-or-setting-or-default :smtp-port 25))
 
-(defn reset-smtp-domain
-  [options]
-  (as-> :smtp-domain <>
-    (option-or-setting-or-default <> options nil)
-    (reset! smtp-domain <>)))
+(defn smtp-domain [] (option-or-setting-or-default :smtp-domain nil))
 
-(defn reset-smtp-settings
-  []
-  (reset! smtp-settings
-          (->> (filter #(->> %
-                             first
-                             name
-                             (re-seq #"smtp_.*"))
-                 @settings)
-               (into {}))))
+(defn smtp-sender-address [] (:smtp_sender_address (settings)))
 
 (defn init
-  [options]
-  (reset! settings
-          (-> (sql/select :*)
-              (sql/from :settings)
-              sql/format
-              (->> (jdbc/query (get-ds)))
-              first))
-  (reset-smtp-settings)
-  (reset-smtp-address options)
-  (reset-smtp-port options)
-  (reset-smtp-domain options)
-  (->> options
+  [opts]
+  (reset! options opts)
+  (->> opts
        :send-frequency-in-seconds
        (reset! send-frequency-in-seconds))
-  (->> options
+  (->> opts
        :retry-frequency-in-seconds
        (reset! retry-frequency-in-seconds))
-  (->> options
+  (->> opts
        :maximum-trials
        (reset! maximum-trials)))
