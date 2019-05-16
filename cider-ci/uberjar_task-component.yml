@@ -18,7 +18,7 @@ scripts:
       if [ -z ${S3_CI_ENDPOINT:+x} ] ; then
         echo "WARN: S3_CI_ENDPOINT is not set; caching can not be used"
       else
-        if [ "$(aws --quiet --only-show-errors --no-progress --endpoint $S3_CI_ENDPOINT $AWS_CLIENT_EXTRA_ARGS s3 cp s3://${S3_CI_CACHE_BUCKET}/${S3_UBERJAR_FILE_NAME} ${UBERJAR_PATH})" ]; then
+        if [ "$(aws --quiet --only-show-errors --no-progress --endpoint $S3_CI_ENDPOINT s3 cp s3://${S3_CI_CACHE_BUCKET}/${S3_UBERJAR_FILE_NAME} ${UBERJAR_PATH})" ]; then
           echo "INFO: Rerrieved uberjar from s3 cache"
         else
           echo "INFO: No S3 cached uberjar found "
@@ -33,8 +33,8 @@ scripts:
       fi
 
       if [ ! -z ${S3_CI_ENDPOINT:+x} ] ; then
-        if [ ! "$(aws --quiet --only-show-errors --no-progress --endpoint $S3_CI_ENDPOINT $AWS_CLIENT_EXTRA_ARGS s3 cp s3://${S3_CI_CACHE_BUCKET}/${S3_UBERJAR_FILE_NAME} ${UBERJAR_PATH})" ]; then
+        if [ ! "$(aws --quiet --only-show-errors --no-progress --endpoint $S3_CI_ENDPOINT s3 cp s3://${S3_CI_CACHE_BUCKET}/${S3_UBERJAR_FILE_NAME} ${UBERJAR_PATH})" ]; then
           echo "INFO: No S3 cached uberjar found; uploading ours now"
-          aws --endpoint $S3_CI_ENDPOINT $AWS_CLIENT_EXTRA_ARGS s3 cp ${UBERJAR_PATH} s3://${S3_CI_CACHE_BUCKET}/${S3_UBERJAR_FILE_NAME}
+          aws --endpoint $S3_CI_ENDPOINT s3 cp ${UBERJAR_PATH} s3://${S3_CI_CACHE_BUCKET}/${S3_UBERJAR_FILE_NAME}
         fi
       fi
