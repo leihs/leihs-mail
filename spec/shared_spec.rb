@@ -13,7 +13,7 @@ def assert_not_received_email(from, to)
   expect(system "grep '#{s}' #{LOG_FILE_PATH}").to be false
 end
 
-def expect_until_timeout(timeout = 10)
+def expect_until_timeout(timeout = 15)
   Timeout.timeout(timeout) do
     p = proc do
       begin 

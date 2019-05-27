@@ -52,20 +52,19 @@ One can run the application with the following cli options or by setting the res
 -h --help
 -d --database-url LEIHS_DATABASE_URL
    --send-frequency-in-seconds LEIHS_MAIL_SEND_FREQUENCY_IN_SECONDS
-   --retry-frequency-in-seconds LEIHS_MAIL_RETRY_FREQUENCY_IN_SECONDS
-   --maximum-trials LEIHS_MAIL_MAXIMUM_TRIALS
+   --retries-in-seconds LEIHS_MAIL_RETRIES_IN_SECONDS
    --smtp-address LEIHS_MAIL_SMTP_ADDRESS
    --smtp-port LEIHS_MAIL_SMTP_PORT
 ```
 
-The current defaults are as [follows](https://github.com/leihs/leihs-mail/blob/master/src/all/leihs/mail/cli.clj#L8-L15).
+The current defaults are to be found [here](https://github.com/leihs/leihs-mail/blob/master/src/all/leihs/mail/cli.clj).
 
 The value of each option is basically determined in the following order:
 1. cli option
 2. environmental variable
 3. default
 
-`LEIHS_MAIL_SMTP_ADDRESS` and `LEIHS_MAIL_SMTP_PORT` are handled specially. Their value is determined in the following order:
+`LEIHS_MAIL_SMTP_ADDRESS`, `LEIHS_MAIL_SMTP_PORT` and `LEIHS_MAIL_SMTP_DOMAIN` are handled specially. Their value is determined in the following order:
 1. cli option
 2. environmental variable
 3. DB: `settings.smtp_*`

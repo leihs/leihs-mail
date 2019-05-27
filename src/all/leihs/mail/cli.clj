@@ -1,6 +1,7 @@
 (ns leihs.mail.cli
   (:refer-clojure :exclude [str keyword])
-  (:require [clojure.tools.logging :as log]
+  (:require [cheshire.core :as json]
+            [clojure.tools.logging :as log]
             [clojure.tools.cli :as cli]
             [clojure.spec.alpha :as spec]
             [clojure.repl :refer [doc]]
@@ -12,9 +13,8 @@
 (def defaults
   {:LEIHS_DATABASE_URL
      "jdbc:postgresql://leihs:leihs@localhost:5432/leihs?min-pool-size=1&max-pool-size=5",
-   :LEIHS_MAIL_SEND_FREQUENCY_IN_SECONDS "60",
-   :LEIHS_MAIL_RETRY_FREQUENCY_IN_SECONDS "300",
-   :LEIHS_MAIL_MAXIMUM_TRIALS "2",
+   :LEIHS_MAIL_SEND_FREQUENCY_IN_SECONDS "1",
+   :LEIHS_MAIL_RETRIES_IN_SECONDS "[5,10,30,60,300,3600,18000]",
    :LEIHS_MAIL_SMTP_ADDRESS "localhost",
    :LEIHS_MAIL_SMTP_PORT "25"})
 
@@ -24,7 +24,9 @@
       (get (str kw) nil)
       presence))
 
-(defn env-or-default [kw] (or (get-from-env kw) (get defaults kw nil)))
+(defn env-or-default
+  [kw]
+  (or (get-from-env kw) (get defaults kw nil)))
 
 (defn extend-pg-params
   [params]
@@ -35,8 +37,7 @@
 
 (spec/def ::database-url-val string?)
 (spec/def ::send-frequency-in-seconds-val integer?)
-(spec/def ::retry-frequency-in-seconds-val integer?)
-(spec/def ::maximum-trials-val integer?)
+(spec/def ::retries-in-seconds-val (spec/coll-of integer?))
 ; -----------------------------------------------------------------------------
 ; nil is possible, because these options may get their value from db (settings)
 (spec/def ::smtp-address-val (spec/or :nil nil? :string string?))
@@ -44,8 +45,9 @@
 (spec/def ::smtp-domain-val (spec/or :nil nil? :string string?))
 ; -----------------------------------------------------------------------------
 
-(comment (spec/assert ::send-frequency-in-seconds-val 10)
-         (spec/valid? ::database-url-val "foo"))
+(comment
+  (spec/assert ::send-frequency-in-seconds-val 10)
+  (spec/valid? ::database-url-val "foo"))
 
 (def cli-options
   [["-h" "--help"]
@@ -69,22 +71,14 @@
          Integer/parseInt
          (spec/assert ::send-frequency-in-seconds-val))
     :parse-fn #(Integer/parseInt %)]
-   [nil "--retry-frequency-in-seconds LEIHS_MAIL_RETRY_FREQUENCY_IN_SECONDS"
-    (str "default: " (:LEIHS_MAIL_RETRY_FREQUENCY_IN_SECONDS defaults))
+   [nil "--retries-in-seconds LEIHS_MAIL_RETRIES_IN_SECONDS"
+    (str "default: " (:LEIHS_MAIL_RETRIES_IN_SECONDS defaults))
     :default
-    (->> :LEIHS_MAIL_RETRY_FREQUENCY_IN_SECONDS
+    (->> :LEIHS_MAIL_RETRIES_IN_SECONDS
          env-or-default
-         Integer/parseInt
-         (spec/assert ::retry-frequency-in-seconds-val))
-    :parse-fn #(Integer/parseInt %)]
-   [nil "--maximum-trials LEIHS_MAIL_MAXIMUM_TRIALS"
-    (str "default: " (:LEIHS_MAIL_MAXIMUM_TRIALS defaults))
-    :default
-    (->> :LEIHS_MAIL_MAXIMUM_TRIALS
-         env-or-default
-         Integer/parseInt
-         (spec/assert ::maximum-trials-val))
-    :parse-fn #(Integer/parseInt %)]
+         json/parse-string
+         (spec/assert ::retries-in-seconds-val))
+    :parse-fn json/parse-string]
    [nil "--smtp-address LEIHS_MAIL_SMTP_ADDRESS"
     "default: settings.smtp_address or localhost"
     :default
@@ -106,4 +100,6 @@
          get-from-env
          (spec/assert ::smtp-domain-val))]])
 
-(defn parse [args] (cli/parse-opts args cli-options :in-order true))
+(defn parse
+  [args]
+  (cli/parse-opts args cli-options :in-order true))

@@ -11,7 +11,7 @@
             [logbug.thrown :as thrown]
             [postal.core :as postal]))
 
-(def ^:private email-base-sqlmap
+(def email-base-sqlmap
   (-> (sql/select :emails.* :users.email)
       (sql/from :emails)
       (sql/merge-left-join :users [:= :users.id :emails.user_id])))
@@ -77,31 +77,50 @@
             (prepare-email-row result)
             update-email!)))))
 
-(defn- send-new-emails! [] (send-emails! (get-new-emails)))
+(defn- send-new-emails!
+  []
+  (send-emails! (get-new-emails)))
 
 (defn- get-failed-emails
   []
   (-> email-base-sqlmap
+      (sql/with [:retries
+                 (sql/select [(sql/call :cast
+                                        (sql/array @settings/retries-in-seconds)
+                                        (sql/raw "integer[]"))
+                              :value])])
       (sql/merge-where [:> :emails.code 0])
+      (sql/merge-where [:<=
+                        :emails.trials
+                        (sql/call :array_length
+                                  (-> (sql/select :value)
+                                      (sql/from :retries))
+                                  (sql/call :cast 1 :integer))])
       (sql/merge-where
         [:>
          (sql/call :extract (sql/raw "second from (now() - emails.updated_at)"))
-         @settings/retry-frequency-in-seconds])
-      (sql/merge-where [:< :emails.trials @settings/maximum-trials])
+         (-> (sql/select (sql/raw "value[emails.trials]"))
+             (sql/from :retries))])
       sql/format
       (->> (jdbc/query (get-ds)))))
 
-(defn- retry-failed-emails! [] (send-emails! (get-failed-emails)))
+(defn- retry-failed-emails!
+  []
+  (send-emails! (get-failed-emails)))
 
-(defn send! [] (send-new-emails!) (retry-failed-emails!))
+(defn send!
+  []
+  (send-new-emails!)
+  (retry-failed-emails!))
 
-(comment (postal/send-message {:host "localhost",
-                               :port 25,
-                               ; :starttls.enable true
-                               ; :starttls.required true
-                               }
-                              {:from "bar@example.com",
-                               :to ["foo@example.com"],
-                               :subject "Test.",
-                               :body "Test.",
-                               :X-Tra "Something else"}))
+(comment
+  (postal/send-message {:host "localhost",
+                        :port 25,
+                        ; :starttls.enable true
+                        ; :starttls.required true
+                        }
+                       {:from "bar@example.com",
+                        :to ["foo@example.com"],
+                        :subject "Test.",
+                        :body "Test.",
+                        :X-Tra "Something else"}))

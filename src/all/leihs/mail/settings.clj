@@ -9,8 +9,7 @@
 
 (def options (atom nil))
 (def send-frequency-in-seconds (atom nil))
-(def retry-frequency-in-seconds (atom nil))
-(def maximum-trials (atom nil))
+(def retries-in-seconds (atom nil))
 
 (defn settings
   []
@@ -30,15 +29,25 @@
            (get (settings)))
       default))
 
-(defn smtp-address [] (option-or-setting-or-default :smtp-address "localhost"))
+(defn smtp-address
+  []
+  (option-or-setting-or-default :smtp-address "localhost"))
 
-(defn smtp-port [] (option-or-setting-or-default :smtp-port 25))
+(defn smtp-port
+  []
+  (option-or-setting-or-default :smtp-port 25))
 
-(defn smtp-domain [] (option-or-setting-or-default :smtp-domain nil))
+(defn smtp-domain
+  []
+  (option-or-setting-or-default :smtp-domain nil))
 
-(defn smtp-sender-address [] (:smtp_sender_address (settings)))
+(defn smtp-sender-address
+  []
+  (:smtp_sender_address (settings)))
 
-(defn smtp-enable-starttls-auto [] (:smtp_enable_starttls_auto (settings)))
+(defn smtp-enable-starttls-auto
+  []
+  (:smtp_enable_starttls_auto (settings)))
 
 (defn init
   [opts]
@@ -47,8 +56,5 @@
        :send-frequency-in-seconds
        (reset! send-frequency-in-seconds))
   (->> opts
-       :retry-frequency-in-seconds
-       (reset! retry-frequency-in-seconds))
-  (->> opts
-       :maximum-trials
-       (reset! maximum-trials)))
+       :retries-in-seconds
+       (reset! retries-in-seconds)))

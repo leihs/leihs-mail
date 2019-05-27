@@ -46,8 +46,7 @@
 
 (spec/def ::database-url map?)
 (spec/def ::send-frequency-in-seconds integer?)
-(spec/def ::retry-frequency-in-seconds integer?)
-(spec/def ::maximum-trials integer?)
+(spec/def ::retries-in-seconds (spec/coll-of integer?))
 (spec/def ::smtp-address string?)
 (spec/def ::smtp-port integer?)
 (spec/def ::smtp-domain (spec/or :nil nil? :string string?))
@@ -56,8 +55,7 @@
   (spec/keys :req-un
              [::database-url
               ::send-frequency-in-seconds
-              ::retry-frequency-in-seconds
-              ::maximum-trials
+              ::retries-in-seconds
               ::smtp-address
               ::smtp-port
               ::smtp-domain]))
@@ -70,7 +68,7 @@
                   (let [status (status/init)]
                     (ds/init (:database-url options)
                              (:health-check-registry status)))
-                  (send/run! options)
+                  (send/run!)
                   (log/info "Invoking run with options: "
                             (-> options
                                 (assoc :smtp-address (settings/smtp-address))
