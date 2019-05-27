@@ -1,5 +1,5 @@
 jobs:
-  specs without fake smtp server:
+  specs-without-fake-smtp-server:
     name: Run specs WITHOUT fake smtp server
     include: cider-ci/specs_job-defaults.yml
     context:
@@ -14,7 +14,7 @@ jobs:
                 export LEIHS_MAIL_SMTP_DOMAIN="example.com"
                 bundle exec rspec ./spec/smtp_server_unreachable_spec.rb
 
-  specs with fake smtp server:
+  specs-with-fake-smtp-server:
     name: Run specs WITH fake smtp server
     include: cider-ci/specs_job-defaults.yml
     context:
@@ -48,3 +48,39 @@ jobs:
           name: "Build mail uberjar"
           include:
             - cider-ci/uberjar_task-component.yml
+
+  good-to-merge:
+    name: ⚑ Good To Merge
+    description: |
+      This job depends on all other tests and checks
+      and it will pass if and only if all dependencies have passed.
+      Status of this job is **used by github's "branch protection"**!
+    depends_on: &GOOD_TO_MERGE_DEPENDENTS
+      build-my-uberjar was successful:
+        type: job
+        job_key: build-mail-uberjar
+        states: [passed]
+      specs with fake smtp have passed:
+        type: job
+        job_key: specs-with-fake-smtp-server
+        states: [passed]
+      specs without fake smtp have passed:
+        type: job
+        job_key: specs-without-fake-smtp-server
+        states: [passed]
+      good to merge of the database:
+        job_key: good-to-merge
+        type: job
+        submodule: [database]
+        states: [passed]
+    run_when: *GOOD_TO_MERGE_DEPENDENTS
+    priority: 999 # "empty" job = high priority
+    context:
+      task_defaults:
+        max_trials: 1
+      tasks:
+        all relevant tests have passed:
+          name: "All relevant tests have passed, thus good to merge"
+          scripts:
+            main:
+              body: echo 'All relevant tests have passed' ; exit 0
