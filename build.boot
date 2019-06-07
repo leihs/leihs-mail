@@ -4,6 +4,7 @@
   :project 'leihs-mail
   :version "0.1.0-SNAPSHOT"
   :dependencies '[
+                   [spootnik/signal "0.2.1"]
                   [aleph "0.4.6"]
                   [bidi "2.1.3"]
                   [cheshire "5.8.1"]

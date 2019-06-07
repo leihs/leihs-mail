@@ -9,15 +9,10 @@ scripts:
         script_key: build-mail-uberjar
       database has been created:
         script_key: create-database
-    ignore_state: true # because we kill the server mercilessly
     body: |
       set -eux
       cd $LEIHS_MAIL_DIR
       java -jar target/leihs-mail.jar run
-
-      # exit OK if server was killed via SIGTERM!
-      test $? -eq 143 && { echo OK; exit 0 ;} || { echo FAILED; exit 1 ;}
-
 
   mail-server-is-running:
     timeout: 30 seconds
