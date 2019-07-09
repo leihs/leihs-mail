@@ -1,7 +1,7 @@
-(load-file "leihs-clj-shared/deps.clj")
+(load-file "shared-clj/deps.clj")
 
 (set-env!
-  :source-paths #{"src/all" "leihs-clj-shared/src"}
+  :source-paths #{"src/all" "shared-clj/src"}
   :resource-paths #{"resources"}
   :project 'leihs-mail
   :version "0.1.0-SNAPSHOT"

@@ -1,0 +1,20 @@
+name: LEIHS/v5/mail
+windows:
+  2:
+    name: app
+    command: |
+      lein do clean, repl
+    post_command_send_keys: |
+      (-main "run")
+  5:
+    name: psql
+    command: |
+      psql -d leihs
+  6:
+    name: db
+    command: |
+      cd database
+  8:
+    name: log
+    command: |
+      mkdir -p log && echo " " > log/debug.log && tail -f log/debug.log

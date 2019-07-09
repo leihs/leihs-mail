@@ -1,5 +1,5 @@
 [submodule "leihs-clj-shared"]
-	path = leihs-clj-shared
+	path = shared-clj
 	url = https://github.com/leihs/leihs-clj-shared.git
 [submodule "database"]
 	path = database
