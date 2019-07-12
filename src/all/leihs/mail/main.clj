@@ -20,19 +20,6 @@
 
 (spec/check-asserts true)
 
-(defn handle-pidfile
-  []
-  (let [pid-file "./tmp/server_pid"]
-    (.mkdirs (java.io.File. "./tmp"))
-    (pid/save pid-file)
-    (log/info (str "pid-file written to " pid-file))
-    (pid/delete-on-shutdown! pid-file)))
-
-(defn handle-sigterm []
-  (signal.handler/with-handler :term
-    (log/info "caught SIGTERM, quitting.")
-    (System/exit 0)))
-
 (defn- main-usage
   [options-summary & more]
   (->>
@@ -81,8 +68,6 @@
                                 (assoc :smtp-address (settings/smtp-address))
                                 (assoc :smtp-port (settings/smtp-port))
                                 (->> (spec/assert ::options))))
-                  (handle-pidfile)
-                  (handle-sigterm)
                   nil))
 
 (defn -main

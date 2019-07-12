@@ -6,6 +6,7 @@
             [clojure.spec.alpha :as spec]
             [clojure.repl :refer [doc]]
             [leihs.core.core :refer [presence keyword str]]
+            [leihs.core.shutdown :as shutdown]
             [leihs.core.url.jdbc :as jdbc-url]))
 
 (def options (atom nil))
@@ -98,7 +99,9 @@
     :default
     (->> :LEIHS_MAIL_SMTP_DOMAIN
          get-from-env
-         (spec/assert ::smtp-domain-val))]])
+         (spec/assert ::smtp-domain-val))]
+   shutdown/pid-file-option
+   ])
 
 (defn parse
   [args]

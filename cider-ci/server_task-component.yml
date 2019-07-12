@@ -12,6 +12,7 @@ scripts:
     body: |
       set -eux
       cd $LEIHS_MAIL_DIR
+      mkdir tmp
       java -jar target/leihs-mail.jar run
 
   mail-server-is-running:
@@ -23,7 +24,7 @@ scripts:
     body: |
       set -eux
       cd $LEIHS_MAIL_DIR
-      until test -f tmp/server_pid -a -n tmp/server_pid;
+      until test -f tmp/service.pid -a -n tmp/service.pid;
         do sleep 1;
       done
 
@@ -38,8 +39,9 @@ scripts:
         script_key: test
         states: [aborted, defective, passed, failed, skipped]
     body: |
-      set -eux
+      set -euxo 
       cd $LEIHS_MAIL_DIR
-      SERVER_PID="./tmp/server_pid"
-      kill -SIGTERM $(cat "$SERVER_PID")
-      rm -f "$SERVER_PID"
+      export PID=$(cat tmp/service.pid)
+      kill $PID 
+      tail --pid=$PID -f /dev/null
+
