@@ -51,6 +51,8 @@
   []
   (cond-> {:host (settings/smtp-address),
            :port (settings/smtp-port),
+           :user (:smtp_username (settings/settings)),
+           :pass (:smtp_password (settings/settings)),
            :localhost (settings/smtp-domain)}
     (settings/smtp-enable-starttls-auto) (merge {:starttls.required true,
                                                  :starttls.enable true})))
@@ -112,15 +114,3 @@
   []
   (send-new-emails!)
   (retry-failed-emails!))
-
-(comment
-  (postal/send-message {:host "localhost",
-                        :port 25,
-                        ; :starttls.enable true
-                        ; :starttls.required true
-                        }
-                       {:from "bar@example.com",
-                        :to ["foo@example.com"],
-                        :subject "Test.",
-                        :body "Test.",
-                        :X-Tra "Something else"}))
