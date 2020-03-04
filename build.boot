@@ -2,7 +2,6 @@
 
 (set-env!
   :source-paths #{"src/all" "shared-clj/src"}
-  :resource-paths #{"resources"}
   :project 'leihs-mail
   :version "0.1.0-SNAPSHOT"
   :dependencies (extend-shared-deps '[[boot-fmt "0.1.8"]
@@ -16,7 +15,6 @@
   target {:dir #{"target"}}
   aot {:all true}
   repl {:init-ns 'user}
-  sift {:include #{#"leihs-mail.jar"}}
   jar {:file "leihs-mail.jar", :main 'leihs.mail.main}
   fmt {:options {:width 80,
                  :old? false,
@@ -29,13 +27,20 @@
        :mode :overwrite,
        :really true})
 
+(deftask prod
+  "Production profile to be used in combination with other tasks."
+  []
+  (with-pass-thru _
+    (set-env! :resource-paths #{"resources/prod"})))
+
 (deftask uberjar
   "Build an uberjar of the application."
   []
-  (comp (aot)
+  (comp (prod)
+        (aot)
         (uber)
+        (sift :add-resource #{"resources/prod"})
         (jar)
-        (sift)
         (target)))
 
 (deftask run
@@ -52,7 +57,8 @@
 (deftask dev
   "Development profile to be used in combination with other tasks."
   []
-  (set-env! :source-paths #(conj % "src/dev"))
+  (set-env! :source-paths #(conj % "src/dev")
+            :resource-paths #{"resources/dev"})
   (require 'reset '[clojure.tools.namespace.repl :as ctnr])
   identity)
 
