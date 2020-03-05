@@ -6,6 +6,8 @@ RETRIES_IN_SECONDS = (
 
 LOG_FILE_PATH = "#{Dir.pwd}/log/fake_smtp.log"
 
+Dir.mkdir("log") unless Dir.exist?("log") 
+
 RSpec.configure do |config|
   config.before :each  do
     File.open(LOG_FILE_PATH, 'w') {|file| file.truncate(0) }
