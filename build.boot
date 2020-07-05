@@ -43,15 +43,6 @@
         (jar)
         (target)))
 
-(deftask run
-  "Run the application with given opts."
-  []
-  (require 'leihs.mail.main)
-  (->> *args*
-       (cons "run")
-       (apply (resolve 'leihs.mail.main/-main)))
-  (wait))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DEV ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (deftask dev
@@ -61,6 +52,17 @@
             :resource-paths #{"resources/dev"})
   (require 'reset '[clojure.tools.namespace.repl :as ctnr])
   identity)
+
+(deftask run
+  "Run the application with given opts."
+  []
+  (comp (dev)
+        (with-pass-thru _
+          (require 'leihs.mail.main)
+          (->> *args*
+               (cons "run")
+               (apply (resolve 'leihs.mail.main/-main))))
+        (wait)))
 
 (ns-unmap *ns* 'repl)
 (deftask repl
