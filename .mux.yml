@@ -3,9 +3,16 @@ windows:
   2:
     name: app
     command: |
-      lein do clean, repl
-    post_command_send_keys: |
-      (-main "run")
+      jenv shell 1.8
+      export LEIHS_MAIL_SMTP_PORT=32025
+      export LEIHS_MAIL_POP3_PORT=32110
+      boot run
+  3:
+    name: SMTP
+    command: |
+      export LEIHS_MAIL_SMTP_PORT=32025
+      export LEIHS_MAIL_POP3_PORT=32110
+      ./scripts/run_fake_smtp
   5:
     name: psql
     command: |

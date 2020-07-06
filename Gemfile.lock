@@ -174,7 +174,7 @@ DEPENDENCIES
   addressable
   base32-crockford
   exiftool_vendored
-  factory_bot (~> 4)
+  factory_bot
   faker
   money-rails (~> 1.4)
   pg
