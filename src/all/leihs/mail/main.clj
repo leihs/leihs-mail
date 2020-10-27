@@ -63,11 +63,8 @@
                     (ds/init (:database-url options)
                              (:health-check-registry status)))
                   (send/run!)
-                  (log/info "Invoking run with options: "
-                            (-> options
-                                (assoc :smtp-address (settings/smtp-address))
-                                (assoc :smtp-port (settings/smtp-port))
-                                (->> (spec/assert ::options))))
+                  (log/info "Send loop running with the following configuration: "
+                            (settings/all))
                   nil))
 
 (defn -main

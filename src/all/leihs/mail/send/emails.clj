@@ -47,15 +47,15 @@
         (rename-keys {:from_address :from, :email :to})
         (cond-> sender-address (assoc :sender sender-address)))))
 
-(defn host-settings
+(defn send-message-opts
   []
   (cond-> {:host (settings/smtp-address),
            :port (settings/smtp-port),
-           :user (:smtp_username (settings/settings)),
-           :pass (:smtp_password (settings/settings)),
+           :user (settings/smtp-username),
+           :pass (settings/smtp-password),
            :localhost (settings/smtp-domain)}
-    (settings/smtp-enable-starttls-auto) (merge {:starttls.required true,
-                                                 :starttls.enable true})))
+    (settings/smtp-enable-starttls-auto)
+    (merge {:starttls.required true, :starttls.enable true})))
 
 (defn- send-emails!
   [emails]
@@ -65,7 +65,7 @@
       (log/debug (str "sending email to: " (:email email)))
       (let [result (try (->> email
                              prepare-email-message
-                             (postal/send-message (host-settings)))
+                             (postal/send-message (send-message-opts)))
                         (catch Exception e
                           (log/warn (-> e
                                         exception/get-cause

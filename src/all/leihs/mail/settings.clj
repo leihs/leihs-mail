@@ -11,7 +11,7 @@
 (def send-frequency-in-seconds (atom nil))
 (def retries-in-seconds (atom nil))
 
-(defn settings
+(defn db-settings
   []
   (-> (sql/select :*)
       (sql/from :settings)
@@ -26,7 +26,7 @@
            name
            csk/->snake_case
            keyword
-           (get (settings)))
+           (get (db-settings)))
       default))
 
 (defn smtp-address
@@ -43,11 +43,28 @@
 
 (defn smtp-sender-address
   []
-  (:smtp_sender_address (settings)))
+  (:smtp_sender_address (db-settings)))
 
 (defn smtp-enable-starttls-auto
   []
-  (:smtp_enable_starttls_auto (settings)))
+  (:smtp_enable_starttls_auto (db-settings)))
+
+(defn smtp-username []
+  (:smtp_username (db-settings)))
+
+(defn smtp-password []
+  (:smtp_password (db-settings)))
+
+(defn all []
+  {:smtp-address (smtp-address)
+   :smtp-port (smtp-port)
+   :smtp-username (smtp-username)
+   :smtp-password (smtp-password)
+   :smtp-domain (smtp-domain)
+   :smtp-sender-address (smtp-sender-address)
+   :smtp-enable-starttls-auto (smtp-enable-starttls-auto)
+   :send-frequency-in-seconds @send-frequency-in-seconds
+   :retries-in-seconds @retries-in-seconds})
 
 (defn init
   [opts]
