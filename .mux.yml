@@ -6,7 +6,7 @@ windows:
       jenv shell 1.8
       export LEIHS_MAIL_SMTP_PORT=32025
       export LEIHS_MAIL_POP3_PORT=32110
-      boot run
+      ./bin/run
   3:
     name: SMTP
     command: |

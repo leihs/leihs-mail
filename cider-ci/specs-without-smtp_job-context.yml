@@ -1,0 +1,14 @@
+tasks:
+  unreachable smtp server spec:
+    name: "Unreachable smtp server spec"
+    scripts:
+      test:
+        body: |
+          set -eux
+          export PATH=~/.rubies/$RUBY/bin:$PATH
+          export LEIHS_MAIL_SMTP_DOMAIN="example.com"
+          bundle exec rspec ./spec/smtp_server_unreachable_spec.rb
+        start_when:
+          gems are bundled:
+            script_key: ruby-bundle
+            states: [passed]

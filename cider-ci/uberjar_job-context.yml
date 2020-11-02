@@ -1,0 +1,14 @@
+task_defaults:
+  environment_variables:
+    LEIHS_MAIL_DIR: "{{CIDER_CI_WORKING_DIR}}"
+    RUBY: '{{RUBY_ENGINE}}-{{RUBY_VERSION}}'
+    RUBY_ENGINE: ruby
+    RUBY_VERSION: 2.7.2
+  git_options:
+    submodules:
+      include_match: ^.*$
+tasks:
+  build-mail-uberjar:
+    name: "Build mail uberjar"
+    include:
+      - cider-ci/uberjar_task-component.yml

@@ -1,29 +1,19 @@
+include: cider-ci/ruby-install_task-component.yml
+
 traits:
-  ruby-install: true
   Bash: true
 
 scripts:
 
-  bundle-rspec-ruby:
-    exclusive_executor_resource: ruby-install_{{$RUBY}}
+  ruby-bundle:
+    exclusive_executor_resource: ruby-bundle_{{$RUBY}}
     timeout: 20 Minutes
     body: |
       #!/usr/bin/env bash
       set -eux
       export PATH=~/.rubies/$RUBY/bin:$PATH
-
-      if [ ! -d ~/.rubies/$RUBY ]; then
-        ruby-install --no-install-deps $RUBY_ENGINE $RUBY_VERSION
-      fi
-
-      if [ ! -f ~/.rubies/$RUBY/bin/bundle ]; then
-        gem install bundler
-      fi
-
       bundle install
-
-  test:
     start_when:
-      gems are bundled:
-        script_key: bundle-rspec-ruby
-        states: [passed]
+      ruby-install:
+        script_key: ruby-install
+

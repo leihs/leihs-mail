@@ -1,12 +1,16 @@
-run_when:
-  any branch has been updated:
-    type: branch
-    include_match: ^.*$
+depends_on: &DEPS
+  build-my-uberjar was successful:
+    type: job
+    job_key: build-mail-uberjar
+    states: [passed]
+
+run_when: *DEPS
 
 context:
   task_defaults:
     include:
       - cider-ci/database_task-component.yml
+      - cider-ci/ruby-install_task-component.yml
       - cider-ci/ruby-bundle_task-component.yml
       - cider-ci/server_task-component.yml
       - cider-ci/uberjar_task-component.yml
