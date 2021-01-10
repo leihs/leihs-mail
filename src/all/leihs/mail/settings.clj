@@ -2,6 +2,7 @@
   (:require [clojure.tools.logging :as log]
             [camel-snake-kebab.core :as csk]
             [clojure.java.jdbc :as jdbc]
+            [clojure.core.memoize :as memoize]
             [leihs.core
              [core :refer [presence]]
              [ds :refer [get-ds]]
@@ -11,49 +12,41 @@
 (def send-frequency-in-seconds (atom nil))
 (def retries-in-seconds (atom nil))
 
-(defn db-settings
-  []
+(defn db-settings-uncached []
   (-> (sql/select :*)
-      (sql/from :settings)
+      (sql/from :smtp_settings)
       sql/format
       (->> (jdbc/query (get-ds)))
       first))
 
-(defn- option-or-setting-or-default
-  [kw default]
-  (or (kw @options)
-      (->> kw
-           name
-           csk/->snake_case
-           keyword
-           (get (db-settings)))
-      default))
+(def db-settings
+  (memoize/ttl db-settings-uncached :ttl/threshold 1000))
 
 (defn smtp-address
   []
-  (option-or-setting-or-default :smtp-address "localhost"))
+  (:address (db-settings)))
 
 (defn smtp-port
   []
-  (option-or-setting-or-default :smtp-port 25))
+  (:port (db-settings)))
 
 (defn smtp-domain
   []
-  (option-or-setting-or-default :smtp-domain nil))
+  (:domain (db-settings)))
 
 (defn smtp-sender-address
   []
-  (:smtp_sender_address (db-settings)))
+  (:sender_address (db-settings)))
 
 (defn smtp-enable-starttls-auto
   []
-  (:smtp_enable_starttls_auto (db-settings)))
+  (:enable_starttls_auto (db-settings)))
 
 (defn smtp-username []
-  (:smtp_username (db-settings)))
+  (:username (db-settings)))
 
 (defn smtp-password []
-  (:smtp_password (db-settings)))
+  (:password (db-settings)))
 
 (defn all []
   {:smtp-address (smtp-address)

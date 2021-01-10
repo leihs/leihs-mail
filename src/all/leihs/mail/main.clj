@@ -41,18 +41,12 @@
 (spec/def ::database-url map?)
 (spec/def ::send-frequency-in-seconds integer?)
 (spec/def ::retries-in-seconds (spec/coll-of integer?))
-(spec/def ::smtp-address string?)
-(spec/def ::smtp-port integer?)
-(spec/def ::smtp-domain (spec/or :nil nil? :string string?))
 
 (spec/def ::options
   (spec/keys :req-un
              [::database-url
               ::send-frequency-in-seconds
-              ::retries-in-seconds
-              ::smtp-address
-              ::smtp-port
-              ::smtp-domain]))
+              ::retries-in-seconds]))
 
 (defn- run
   [options]
