@@ -17,14 +17,14 @@ FactoryBot.define do
   trait :succeeded do
     trials { 1 }
     code { 0 }
-    error { 'SUCCESS' }
+    status { 'SUCCESS' }
     message { 'message sent' }
   end
 
   trait :failed do
     trials { 1 }
     code { 69 }
-    error { 'EX_UNAVAILABLE' }
+    status { 'EX_UNAVAILABLE' }
     message { 'service unavailable' }
   end
 end

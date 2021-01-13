@@ -12,7 +12,7 @@ describe 'Sending of emails fails' do
       email.reload
       expect(email.trials).to be > 0
       expect(email.code).to eq 99
-      expect(email.error).to eq 'java.lang.Exception'
+      expect(email.status).to eq 'java.lang.Exception'
       expect(email.message).to eq 'message needs at least :from and :to or :from and :bcc'
       expect(Email.count).to eq 1
       assert_not_received_email(email.from_address, '')
@@ -27,7 +27,7 @@ describe 'Sending of emails fails' do
       email_2 = email.dup.reload
       expect(email_2.trials).to eq email.trials
       expect(email_2.code).to eq email.code
-      expect(email_2.error).to eq email.error
+      expect(email_2.status).to eq email.error
       expect(email_2.message).to eq email.message
       expect(Email.count).to eq 1
       assert_not_received_email(email.from_address, email.user.email)
@@ -45,7 +45,7 @@ describe 'Sending of emails fails' do
       email.reload
       expect(email.trials).to be > 0
       expect(email.code).to eq 99
-      expect(email.error).to eq 'javax.mail.MessagingException'
+      expect(email.status).to eq 'javax.mail.MessagingException'
       expect(email.message).to eq 'STARTTLS is required but host does not support STARTTLS'
       expect(Email.count).to eq 1
       assert_not_received_email(email.from_address, email.user.email)

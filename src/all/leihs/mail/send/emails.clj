@@ -35,7 +35,8 @@
   [email result]
   (-> email
       (merge result {:updated_at (sql/call :now)})
-      (update :error name)
+      (rename-keys {:error :status})
+      (update :status name)
       (update :trials inc)
       (dissoc :email)))
 
@@ -71,9 +72,7 @@
                                         exception/get-cause
                                         thrown/to-string))
                           {:code 99,
-                           :error (-> e
-                                      .getClass
-                                      .getName),
+                           :status (-> e .getClass .getName),
                            :message (.getMessage e)}))]
         (-> email
             (prepare-email-row result)
