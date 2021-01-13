@@ -48,6 +48,9 @@
 (defn smtp-password []
   (:password (db-settings)))
 
+(defn smtp-enabled []
+  (:enabled (db-settings)))
+
 (defn all []
   {:smtp-address (smtp-address)
    :smtp-port (smtp-port)
@@ -56,6 +59,7 @@
    :smtp-domain (smtp-domain)
    :smtp-sender-address (smtp-sender-address)
    :smtp-enable-starttls-auto (smtp-enable-starttls-auto)
+   :smtp-enabled (smtp-enabled)
    :send-frequency-in-seconds @send-frequency-in-seconds
    :retries-in-seconds @retries-in-seconds})
 

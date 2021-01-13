@@ -1,5 +1,6 @@
-(ns reset
+(ns app
   (:require clojure.repl
+            user
             [clojure.tools.namespace.repl :as ctnr]))
 
 (ctnr/disable-reload!)

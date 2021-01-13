@@ -35,7 +35,7 @@ describe 'Sending of emails fails' do
   end
 
   it 'smtp server does not support TLS' do
-    Setting.first.update(smtp_enable_starttls_auto: true)
+    SmtpSetting.first.update(enable_starttls_auto: true)
 
     email = FactoryBot.create(:email, :unsent)
 

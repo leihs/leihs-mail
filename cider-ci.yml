@@ -16,7 +16,7 @@ jobs:
   specs-with-fake-smtp-server:
     name: Run specs WITH fake smtp server
     include: cider-ci/specs_job-defaults.yml
-    context: { include: cider-ci/specs-without-smtp_job-context.yml }
+    context: { include: cider-ci/specs-with-smtp_job-context.yml }
 
   good-to-merge:
     name: ⚑ Good To Merge

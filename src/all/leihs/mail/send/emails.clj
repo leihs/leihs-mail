@@ -57,15 +57,22 @@
     (settings/smtp-enable-starttls-auto)
     (merge {:starttls.required true, :starttls.enable true})))
 
+(defn- send-email! [email]
+  (let [prepared-email (prepare-email-message email)]
+    (if (settings/smtp-enabled)
+      (do (log/debug (str "sending email to: " (:email email)))
+          (postal/send-message (send-message-opts) prepared-email))
+      (do (log/warn "SMTP disabled. Message would be sent to: " (:email email))
+          {:code 0
+           :error :SUCCESS
+           :message "Message not sent in real because of disabled SMTP setting."}))))
+
 (defn- send-emails!
   [emails]
   (catcher/snatch
     {:level :warn}
     (doseq [email emails]
-      (log/debug (str "sending email to: " (:email email)))
-      (let [result (try (->> email
-                             prepare-email-message
-                             (postal/send-message (send-message-opts)))
+      (let [result (try (send-email! email)
                         (catch Exception e
                           (log/warn (-> e
                                         exception/get-cause

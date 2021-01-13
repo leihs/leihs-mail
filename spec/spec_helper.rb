@@ -1,5 +1,6 @@
 require 'active_support/all'
 require 'config/database'
+require 'config/emails'
 require 'config/factories'
 require 'config/mail'
 require 'pry'

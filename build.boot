@@ -14,7 +14,7 @@
 (task-options!
   target {:dir #{"target"}}
   aot {:all true}
-  repl {:init-ns 'user}
+  repl {:init-ns 'app}
   jar {:file "leihs-mail.jar", :main 'leihs.mail.main}
   fmt {:options {:width 80,
                  :old? false,
@@ -50,7 +50,7 @@
   []
   (set-env! :source-paths #(conj % "src/dev")
             :resource-paths #{"resources/dev"})
-  (require 'reset '[clojure.tools.namespace.repl :as ctnr])
+  (require 'app '[clojure.tools.namespace.repl :as ctnr])
   identity)
 
 (deftask run
@@ -80,7 +80,7 @@
     (apply (resolve 'ctnr/set-refresh-dirs)
            (get-env :directories))
     (with-bindings {#'*ns* *ns*}
-      ((resolve 'reset/reset)))))
+      ((resolve 'app/reset)))))
 
 (deftask
   focus
