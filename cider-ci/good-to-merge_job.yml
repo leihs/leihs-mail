@@ -1,5 +1,5 @@
 depends_on: &GOOD_TO_MERGE_DEPENDENTS
-  build-my-uberjar was successful:
+  build-mail-uberjar was successful:
     type: job
     job_key: build-mail-uberjar
     states: [passed]
