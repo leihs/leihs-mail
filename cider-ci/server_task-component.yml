@@ -2,7 +2,6 @@ traits:
   JDK: true
 
 scripts:
-
   run-mail-server:
     start_when:
       uberjar has been built:
@@ -16,7 +15,6 @@ scripts:
       java -jar target/leihs-mail.jar run
 
   mail-server-is-running:
-    timeout: 30 seconds
     start_when:
       run mail server is executing:
         script_key: run-mail-server
@@ -39,9 +37,8 @@ scripts:
         script_key: test
         states: [aborted, defective, passed, failed, skipped]
     body: |
-      set -euxo 
+      set -euxo
       cd $LEIHS_MAIL_DIR
       export PID=$(cat tmp/service.pid)
-      kill $PID 
+      kill $PID
       tail --pid=$PID -f /dev/null
-
