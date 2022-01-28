@@ -1,8 +1,10 @@
+.cpcache/
 .nrepl-history
 .nrepl-port
-src/dev/scratch.clj
-log/
 fake-mailbox/
-tmp/
-target/
+log/
 mailbox/
+resources/built-info.yml
+src/dev/scratch.clj
+target/
+tmp/

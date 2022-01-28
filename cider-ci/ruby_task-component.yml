@@ -4,19 +4,21 @@ traits:
 
 scripts:
 
-  ruby-install:
-    exclusive_executor_resource: ruby-install_{{$RUBY}}
+  mail-setup-ruby:
+    exclusive_executor_resource: ruby_{{$RUBY}}
     timeout: 20 Minutes
     body: |
       #!/usr/bin/env bash
-      set -eux
+      set -euxo
+      cd $LEIHS_MAIL_DIR
       export PATH=~/.rubies/$RUBY/bin:$PATH
 
       if [ ! -d ~/.rubies/$RUBY ]; then
         ruby-install --no-install-deps $RUBY_ENGINE $RUBY_VERSION
       fi
 
-      if [ ! -f ~/.rubies/$RUBY/bin/bundle ]; then
-        gem install bundler
-      fi
+      gem install bundler:${RUBY_BUNDLER_VERSION}
+
+      bundle install
+
 

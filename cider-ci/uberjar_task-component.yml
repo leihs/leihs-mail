@@ -1,7 +1,7 @@
-include: cider-ci/ruby-install_task-component.yml
+include: cider-ci/ruby_task-component.yml
 
 traits:
-  JDK 8: true
+  OpenJDK: true
 
 scripts:
   build-mail-uberjar:
@@ -15,5 +15,5 @@ scripts:
 
     start_when:
       ruby-install:
-        script_key: ruby-install
+        script_key: mail-setup-ruby
 

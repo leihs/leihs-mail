@@ -10,5 +10,5 @@ tasks:
           bundle exec rspec ./spec/smtp_server_unreachable_spec.rb
         start_when:
           gems are bundled:
-            script_key: ruby-bundle
+            script_key: mail-setup-ruby
             states: [passed]

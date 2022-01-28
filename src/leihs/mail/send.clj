@@ -1,11 +1,11 @@
 (ns leihs.mail.send
   (:refer-clojure :exclude [run!])
-  (:require [camel-snake-kebab.core :as csk]
-            [clojure.java.jdbc :as jdbc]
-            [clojure.tools.logging :as log]
-            [leihs.mail.settings :as settings]
-            [leihs.mail.send.emails :as emails]
-            [leihs.mail.cli :as cli]))
+  (:require
+    [camel-snake-kebab.core :as csk]
+    [clojure.java.jdbc :as jdbc]
+    [clojure.tools.logging :as log]
+    [leihs.mail.settings :as settings]
+    [leihs.mail.send.emails :as emails]))
 
 (def send-loop-thread (atom nil))
 
@@ -21,7 +21,7 @@
                      (.getName thread))
           (System/exit 1))))
   (while (= (Thread/currentThread) @send-loop-thread)
-    (Thread/sleep (* @settings/send-frequency-in-seconds 1000))
+    (Thread/sleep (* @settings/pause-seconds* 1000))
     (emails/send!)))
 
 (defn run!

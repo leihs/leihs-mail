@@ -12,7 +12,7 @@ scripts:
       set -eux
       cd $LEIHS_MAIL_DIR
       mkdir tmp
-      java -jar target/leihs-mail.jar run
+      java -jar target/leihs-mail.jar run --pid-file tmp/service.pid
 
   mail-server-is-running:
     start_when:

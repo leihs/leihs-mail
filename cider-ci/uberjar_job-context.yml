@@ -1,9 +1,7 @@
 task_defaults:
+  include: cider-ci/env_vars.yml
   environment_variables:
     LEIHS_MAIL_DIR: "{{CIDER_CI_WORKING_DIR}}"
-    RUBY: '{{RUBY_ENGINE}}-{{RUBY_VERSION}}'
-    RUBY_ENGINE: ruby
-    RUBY_VERSION: 2.7.2
   git_options:
     submodules:
       include_match: ^.*$

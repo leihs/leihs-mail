@@ -1,15 +1,15 @@
 (ns leihs.mail.send.emails
-  (:require [clojure.java.jdbc :as jdbc]
-            [clojure.set :refer [rename-keys]]
-            [clojure.tools.logging :as log]
-            [leihs.core
-             [ds :refer [get-ds]]
-             [sql :as sql]
-             [ring-exception :as exception]]
-            [leihs.mail.settings :as settings]
-            [logbug.catcher :as catcher]
-            [logbug.thrown :as thrown]
-            [postal.core :as postal]))
+  (:require
+    [clojure.java.jdbc :as jdbc]
+    [clojure.set :refer [rename-keys]]
+    [clojure.tools.logging :as log]
+    [leihs.core.db :refer [get-ds]]
+    [leihs.core.ring-exception :as exception]
+    [leihs.core.sql :as sql]
+    [leihs.mail.settings :as settings]
+    [logbug.catcher :as catcher]
+    [logbug.thrown :as thrown]
+    [postal.core :as postal]))
 
 (def email-base-sqlmap
   (-> (sql/select :emails.* :users.email)
@@ -95,7 +95,7 @@
   (-> email-base-sqlmap
       (sql/with [:retries
                  (sql/select [(sql/call :cast
-                                        (sql/array @settings/retries-in-seconds)
+                                        (sql/array @settings/retries-seconds*)
                                         (sql/raw "integer[]"))
                               :value])])
       (sql/merge-where [:> :emails.code 0])

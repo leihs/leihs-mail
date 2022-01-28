@@ -3,7 +3,7 @@ scripts:
   run-fake-smtp-server:
     start_when:
       bundled:
-        script_key: ruby-bundle
+        script_key: mail-setup-ruby
 
     timeout: 5 Minutes
     body: |

@@ -1,30 +1,35 @@
 require 'addressable'
 require 'sequel'
 
-DB_ENV = ENV['LEIHS_DATABASE_URL'].presence
 
-def http_uri
-  @http_uri ||= \
-    Addressable::URI.parse DB_ENV.gsub(/^jdbc:postgresql/,'http').gsub(/^postgres/,'http')
+### sequel ####################################################################
+
+def db_name
+  ENV['LEIHS_DATABASE_NAME'] || ENV['DB_NAME'] || 'leihs'
+end
+
+def db_port
+  Integer(ENV['DB_PORT'].presence || ENV['PGPORT'].presence || 5432)
+end
+
+def db_con_str
+  logger = Logger.new(STDOUT)
+  s = 'postgres://' \
+    + (ENV['PGUSER'].presence || 'postgres') \
+    + ((pw = (ENV['DB_PASSWORD'].presence || ENV['PGPASSWORD'].presence)) ? ":#{pw}" : "") \
+    + '@' + (ENV['PGHOST'].presence || 'localhost') \
+    + ':' + (db_port).to_s \
+    + '/' + (db_name)
+  logger.info "SEQUEL CONN #{s}"
+  s
 end
 
 def database
-  @database ||= \
-    Sequel.connect(
-      if DB_ENV
-        # trick Addressable to parse db urls
-        'postgres://' \
-          + (http_uri.user.presence || ENV['PGUSER'].presence || 'postgres') \
-          + ((pw = (http_uri.password.presence || ENV['PGPASSWORD'].presence)) ? ":#{pw}" : "") \
-          + '@' + (http_uri.host.presence || ENV['PGHOST'].presence || ENV['PGHOSTADDR'].presence || 'localhost') \
-          + ':' + (http_uri.port.presence || ENV['PGPORT'].presence || 5432).to_s \
-          + '/' + ( http_uri.path.presence.try(:gsub,/^\//,'') || ENV['PGDATABASE'].presence || 'leihs') \
-          + '?pool=5'
-      else
-        'postgresql://leihs:leihs@localhost:5432/leihs?pool=5'
-      end
-    )
+  @database ||= Sequel.connect(db_con_str)
 end
+
+
+###############################################################
 
 def clean_db
   tables = database[ <<-SQL.strip_heredoc
@@ -43,8 +48,8 @@ end
 RSpec.configure do |config|
   config.before :each  do
     unless YAML.load(ENV['SKIP_CLEAN_DB'].to_s) == true
-      clean_db 
-      system("DATABASE_NAME=#{http_uri.basename} ./database/scripts/restore-seeds")
+      clean_db
+      system("LEIHS_DATABASE_NAME=#{db_name} ./database/scripts/restore-seeds")
     end
   end
   config.after :suite do

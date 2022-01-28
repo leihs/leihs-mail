@@ -1,9 +1,8 @@
-name: LEIHS/v5/mail
+name: LEIHS/leihs/mail
 windows:
   2:
     name: app
     command: |
-      jenv shell 1.8
       export LEIHS_MAIL_SMTP_PORT=32025
       export LEIHS_MAIL_POP3_PORT=32110
       ./bin/run

@@ -9,9 +9,10 @@ run_when: *DEPS
 context:
   task_defaults:
     include:
-      - cider-ci/database_task-component.yml
-      - cider-ci/ruby-install_task-component.yml
-      - cider-ci/ruby-bundle_task-component.yml
+      - cider-ci/env_vars.yml
+      - path: cider-ci/task-components/database.yml
+        submodule: [database]
+      - cider-ci/ruby_task-component.yml
       - cider-ci/server_task-component.yml
       - cider-ci/uberjar_task-component.yml
 
@@ -22,7 +23,7 @@ context:
     max_trials: 2
 
     traits:
-      JDK 8: true
+      OpenJDK: true
 
     ports:
       LEIHS_MAIL_POP3_PORT:
@@ -34,14 +35,8 @@ context:
 
     environment_variables:
       LEIHS_MAIL_DIR: "{{CIDER_CI_WORKING_DIR}}"
-      DATABASE_NAME: leihs_mail_{{CIDER_CI_TRIAL_ID}}
-      LEIHS_DATABASE_URL: "jdbc:postgresql://localhost/{{DATABASE_NAME}}?max-pool-size=5"
+      LEIHS_DATABASE_DIR: "{{LEIHS_MAIL_DIR}}/database"
       LEIHS_SECRET: "{{CIDER_CI_TRIAL_ID}}"
       LEIHS_MAIL_SEND_FREQUENCY_IN_SECONDS: "1"
       LEIHS_MAIL_RETRIES_IN_SECONDS: "[5,10]"
       RAILS_ENV: test
-      RUBY: "{{RUBY_ENGINE}}-{{RUBY_VERSION}}"
-      RUBY_ENGINE: ruby
-      RUBY_VERSION: 2.6.0
-      BOOT_VERSION: 2.8.3
-      BOOT_CLOJURE_VERSION: 1.9.0
