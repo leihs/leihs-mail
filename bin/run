@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -eu
+
+MAIL_DIR="$(dirname ${BASH_SOURCE})/.."
+cd "${MAIL_DIR}"
+echo "PWD: $PWD"
+
+./bin/build
+
+java -jar target/leihs-mail.jar run
+
+cd -
+
+# vi: ft=sh
