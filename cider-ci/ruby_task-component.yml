@@ -3,9 +3,8 @@ traits:
   Bash: true
 
 scripts:
-
   mail-setup-ruby:
-    exclusive_executor_resource: ruby_{{$RUBY}}
+    exclusive_executor_resource: ruby_{{RUBY}}
     timeout: 20 Minutes
     body: |
       #!/usr/bin/env bash
@@ -20,5 +19,3 @@ scripts:
       gem install bundler:${RUBY_BUNDLER_VERSION}
 
       bundle install
-
-
