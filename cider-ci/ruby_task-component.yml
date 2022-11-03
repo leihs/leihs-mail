@@ -1,5 +1,5 @@
 traits:
-  ruby-install: true
+  asdf-ruby: true
   Bash: true
 
 scripts:
@@ -10,12 +10,5 @@ scripts:
       #!/usr/bin/env bash
       set -euxo
       cd $LEIHS_MAIL_DIR
-      export PATH=~/.rubies/$RUBY/bin:$PATH
-
-      if [ ! -d ~/.rubies/$RUBY ]; then
-        ruby-install --no-install-deps $RUBY_ENGINE $RUBY_VERSION
-      fi
-
-      gem install bundler:${RUBY_BUNDLER_VERSION}
-
+      asdf install ruby
       bundle install

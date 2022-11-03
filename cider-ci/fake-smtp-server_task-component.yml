@@ -8,7 +8,6 @@ scripts:
     timeout: 5 Minutes
     body: |
       set -eux
-      export PATH=~/.rubies/$RUBY/bin:$PATH
       ./scripts/run_fake_smtp &
 
   test:

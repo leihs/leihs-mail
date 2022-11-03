@@ -6,6 +6,5 @@ task_defaults:
     test:
       body: |
         set -eux
-        export PATH=~/.rubies/$RUBY/bin:$PATH
         export LEIHS_MAIL_SMTP_DOMAIN="example.com"
         bundle exec rspec $CIDER_CI_TASK_FILE
