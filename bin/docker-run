@@ -3,8 +3,8 @@ set -exu
 
 WD="$(pwd)"
 
-IMAGE="$(IMAGE_NAME=leihs-mail-builder STAGE=builder bin/docker-build | tail -1)"
-test "$IMAGE"
+MAIL_IMAGE="$(MAIL_IMAGE_NAME=leihs-mail-builder STAGE=builder bin/docker-build | tail -1)"
+test "$MAIL_IMAGE"
 
 docker run --rm -it \
   -v "${WD}/:/leihs/mail/" \
