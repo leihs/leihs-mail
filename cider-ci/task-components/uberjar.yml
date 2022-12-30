@@ -1,0 +1,16 @@
+include: cider-ci/task-components/ruby-bundle.yml
+
+git_options:
+  submodules:
+    include_match: ^.*$
+
+scripts:
+  build-mail-uberjar:
+    timeout: 10 minutes
+    exclusive_executor_resource: build-leihs-mail-jar
+    body: cd $LEIHS_MAIL_DIR && ./bin/build
+
+    start_when:
+      ruby-install:
+        script_key: mail-ruby-bundle
+

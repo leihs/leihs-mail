@@ -1,15 +1,11 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-set -eu
-
-MAIL_DIR="$(dirname ${BASH_SOURCE})/.."
-cd "${MAIL_DIR}"
-echo "PWD: $PWD"
+PROJECT_DIR="$(cd -- "$(dirname "${BASH_SOURCE}")" ; cd .. > /dev/null 2>&1 && pwd -P)"
+cd $PROJECT_DIR
 
 ./bin/build
 
-java -jar target/leihs-mail.jar run
-
-cd -
+java -jar target/leihs-mail.jar run "$@"
 
 # vi: ft=sh

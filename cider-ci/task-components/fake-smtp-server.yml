@@ -3,12 +3,13 @@ scripts:
   run-fake-smtp-server:
     start_when:
       bundled:
-        script_key: mail-setup-ruby
-
+        script_key: mail-ruby-bundle
     timeout: 5 Minutes
     body: |
-      set -eux
-      ./scripts/run_fake_smtp &
+      #!/usr/bin/env bash
+      set -euo pipefail 
+      cd $LEIHS_MAIL_DIR
+      ./bin/run_fake_smtp
 
   test:
     start_when:
@@ -23,7 +24,8 @@ scripts:
         script_key: test
         states: [aborted, defective, passed, failed, skipped]
     body: |
-      smtp_pid=`lsof -t -i :$LEIHS_MAIL_SMTP_PORT`
-      pop3_pid=`lsof -t -i :$LEIHS_MAIL_POP3_PORT`
-      test $smtp_pid && kill $smtp_pid
-      test $pop3_pid && kill $pop3_pid
+      #!/usr/bin/env bash
+      set -euo pipefail 
+      set -x
+      SMTP_PID=`lsof -t -i :$LEIHS_MAIL_SMTP_PORT`
+      kill -SIGINT $SMTP_PID

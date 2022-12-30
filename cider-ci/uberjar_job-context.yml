@@ -1,7 +1,7 @@
 task_defaults:
-  include: cider-ci/env_vars.yml
   environment_variables:
     LEIHS_MAIL_DIR: "{{CIDER_CI_WORKING_DIR}}"
+
   git_options:
     submodules:
       include_match: ^.*$
@@ -9,4 +9,4 @@ tasks:
   build-mail-uberjar:
     name: "Build mail uberjar"
     include:
-      - cider-ci/uberjar_task-component.yml
+      - cider-ci/task-components/uberjar.yml

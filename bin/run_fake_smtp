@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
+set -euo pipefail
+set -x 
+PROJECT_DIR="$(cd -- "$(dirname "${BASH_SOURCE}")" ; cd .. > /dev/null 2>&1 && pwd -P)"
+cd $PROJECT_DIR
+./bin/env/ruby-setup
 
-if test -z $LEIHS_MAIL_SMTP_PORT; then
-  LEIHS_MAIL_SMTP_PORT=25
-fi
-
-if test -z $LEIHS_MAIL_POP3_PORT; then
-  LEIHS_MAIL_POP3_PORT=110
-fi
+LEIHS_MAIL_SMTP_PORT=${LEIHS_MAIL_SMTP_PORT:-25}
+LEIHS_MAIL_POP3_PORT=${LEIHS_MAIL_POP3_PORT:-110}
 
 echo "smtp port: $LEIHS_MAIL_SMTP_PORT"
 echo "pop3 port: $LEIHS_MAIL_POP3_PORT"

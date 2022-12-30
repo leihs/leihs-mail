@@ -9,12 +9,11 @@ run_when: *DEPS
 context:
   task_defaults:
     include:
-      - cider-ci/env_vars.yml
       - path: cider-ci/task-components/database.yml
         submodule: [database]
-      - cider-ci/ruby_task-component.yml
-      - cider-ci/server_task-component.yml
-      - cider-ci/uberjar_task-component.yml
+      - cider-ci/task-components/ruby-bundle.yml
+      - cider-ci/task-components/server.yml
+      - cider-ci/task-components/uberjar.yml
 
     git_options:
       submodules:
@@ -34,6 +33,7 @@ context:
         max: 3999
 
     environment_variables:
+      LEIHS_DATABASE_NAME: leihs_api_{{CIDER_CI_TRIAL_ID}}
       LEIHS_MAIL_DIR: "{{CIDER_CI_WORKING_DIR}}"
       LEIHS_DATABASE_DIR: "{{LEIHS_MAIL_DIR}}/database"
       LEIHS_SECRET: "{{CIDER_CI_TRIAL_ID}}"

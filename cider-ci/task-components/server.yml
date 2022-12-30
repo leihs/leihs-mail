@@ -9,10 +9,13 @@ scripts:
       database has been created:
         script_key: create-database
     body: |
-      set -eux
+      #!/usr/bin/env bash
+      set -euo pipefail
       cd $LEIHS_MAIL_DIR
       mkdir tmp
-      java -jar target/leihs-mail.jar run --pid-file tmp/service.pid
+      unset PGPORT; unset PGUSER
+      PGPORT=${PG10PORT} PGUSER=${PG10USER} \
+        ./bin/run --db-name ${LEIHS_DATABASE_NAME} --pid-file tmp/service.pid
 
   mail-server-is-running:
     start_when:
@@ -20,7 +23,8 @@ scripts:
         script_key: run-mail-server
         states: [executing]
     body: |
-      set -eux
+      #!/usr/bin/env bash
+      set -euo pipefail
       cd $LEIHS_MAIL_DIR
       until test -f tmp/service.pid -a -n tmp/service.pid;
         do sleep 1;
@@ -37,7 +41,8 @@ scripts:
         script_key: test
         states: [aborted, defective, passed, failed, skipped]
     body: |
-      set -euxo
+      #!/usr/bin/env bash
+      set -euo pipefail
       cd $LEIHS_MAIL_DIR
       export PID=$(cat tmp/service.pid)
       kill $PID

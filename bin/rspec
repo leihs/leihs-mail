@@ -2,7 +2,8 @@
 set -euo pipefail
 
 PROJECT_DIR="$(cd -- "$(dirname "${BASH_SOURCE}")" ; cd .. > /dev/null 2>&1 && pwd -P)"
-source ${PROJECT_DIR}/shared-clj/bin/helpers/clj.sh
-PROJECT_NAME=mail clj_outdated
+cd $PROJECT_DIR
+./bin/env/ruby-setup
 
+bundle exec rspec "$@"
 # vi: ft=sh

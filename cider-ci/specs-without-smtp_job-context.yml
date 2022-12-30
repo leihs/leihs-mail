@@ -3,11 +3,12 @@ tasks:
     name: "Unreachable smtp server spec"
     scripts:
       test:
-        body: |
-          set -eux
+        body:
+          #!/usr/bin/env bash
+          set -euo pipefail
           export LEIHS_MAIL_SMTP_DOMAIN="example.com"
-          bundle exec rspec ./spec/smtp_server_unreachable_spec.rb
+          ./bin/rspec ./spec/smtp_server_unreachable_spec.rb
         start_when:
           gems are bundled:
-            script_key: mail-setup-ruby
+            script_key: mail-ruby-bundle
             states: [passed]

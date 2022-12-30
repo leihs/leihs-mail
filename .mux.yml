@@ -11,7 +11,7 @@ windows:
     command: |
       export LEIHS_MAIL_SMTP_PORT=32025
       export LEIHS_MAIL_POP3_PORT=32110
-      ./scripts/run_fake_smtp
+      ./bin/run_fake_smtp
   5:
     name: psql
     command: |

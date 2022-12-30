@@ -10,7 +10,7 @@
 
 ```
 bundle install
-./scripts/run_fake_smtp
+./bin/run_fake_smtp
 ```
 
 It respects the `LEIHS_MAIL_SMTP_PORT` (default 25) and `LEIHS_MAIL_POP3_PORT` (default 110) environmental variables.
@@ -38,11 +38,11 @@ see
 # export run options in each terminal if necessary
 
 # terminal 1
-./scripts/run_fake_smtp
+./bin/run_fake_smtp
 # terminal 2
 boot focus
 # terminal 3
-bundle exec rspec spec/successful_emails_spec.rb spec/failed_emails_spec.rb
+./bin/rspec spec/successful_emails_spec.rb spec/failed_emails_spec.rb
 ```
 
 ### Tests without fake smtp server
@@ -53,5 +53,5 @@ bundle exec rspec spec/successful_emails_spec.rb spec/failed_emails_spec.rb
 # terminal 1
 boot focus
 # terminal 2
-bundle exec rspec spec/smtp_server_unreachable_spec.rb
+./bin/rspec spec/smtp_server_unreachable_spec.rb
 ```

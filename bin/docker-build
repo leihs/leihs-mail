@@ -1,5 +1,17 @@
-#!/bin/bash
-set -exu
+#!/usr/bin/env bash
+set -euo pipefail
+
+# all the environment is now manged with asdf
+# the docker build needs to be updated to use that information, too
+DOCKER_BUILD_MAINTENANCE_ERROR=${DOCKER_BUILD_MAINTENANCE_ERROR:-YES}
+if [ $DOCKER_BUILD_MAINTENANCE_ERROR == "YES" ]; then
+  echo "the docker build is not maintained; set DOCKER_BUILD_MAINTENANCE_ERROR to 'IGNORE' use it anyways"
+  exit -1
+elif [ $DOCKER_BUILD_MAINTENANCE_ERROR != "IGNORE" ]; then
+  echo "DOCKER_BUILD_MAINTENANCE_ERROR must be either YES of IGNORE"
+  exit -2
+fi
+
 
 # NOTE: this works exactly like `bin/build`, but runs inside a docker container.
 
