@@ -16,7 +16,7 @@ describe 'Sending of emails succeeds (with domain)' do
       expect(email.error).to eq 'SUCCESS'
       expect(email.message).to eq 'messages sent'
       expect(Email.count).to eq 1
-      assert_received_email(email.from_address, email.user.email)
+      assert_received_email(email.from_address, email.to_address)
       assert_domain(domain)
     end
   end
@@ -32,7 +32,7 @@ describe 'Sending of emails succeeds (with domain)' do
       expect(email.error).to eq 'SUCCESS'
       expect(email.message).to eq 'messages sent'
       expect(Email.count).to eq 1
-      assert_received_email(email.from_address, email.user.email)
+      assert_received_email(email.from_address, email.to_address)
     end
   end
 
@@ -47,7 +47,7 @@ describe 'Sending of emails succeeds (with domain)' do
       expect(email.error).to eq 'SUCCESS'
       expect(email.message).to eq 'messages sent'
       expect(Email.count).to eq 1
-      assert_received_email(email.from_address, email.user.email)
+      assert_received_email(email.from_address, email.to_address)
     end
   end
 
@@ -63,7 +63,7 @@ describe 'Sending of emails succeeds (with domain)' do
       expect(email.message).to eq 'message sent'
 
       expect(Email.count).to eq 1
-      assert_not_received_email(email.from_address, email.user.email)
+      assert_not_received_email(email.from_address, email.to_address)
     end
   end
 
@@ -80,7 +80,7 @@ describe 'Sending of emails succeeds (with domain)' do
       expect(email.error).to eq 'SUCCESS'
       expect(email.message).to eq 'Message not sent in real because of disabled SMTP setting.'
       expect(Email.count).to eq 1
-      assert_not_received_email(email.from_address, email.user.email)
+      assert_not_received_email(email.from_address, email.to_address)
     end
   end
 end

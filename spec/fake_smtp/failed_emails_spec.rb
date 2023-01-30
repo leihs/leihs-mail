@@ -2,23 +2,6 @@ require 'spec_helper'
 require 'shared_spec'
 
 describe 'Sending of emails fails' do
-  it 'User does not exist' do
-    email = FactoryBot.create(:email, :unsent)
-    email.user.destroy
-
-    sleep(SEND_FREQUENCY_IN_SECONDS + 1)
-
-    expect_until_timeout do
-      email.reload
-      expect(email.trials).to be > 0
-      expect(email.code).to eq 99
-      expect(email.error).to eq 'java.lang.Exception'
-      expect(email.message).to eq 'message needs at least :from and :to or :from and :bcc'
-      expect(Email.count).to eq 1
-      assert_not_received_email(email.from_address, '')
-    end
-  end
-
   it 'maximum trials reached' do
     email = FactoryBot.create(:email, :failed, trials: RETRIES_IN_SECONDS.length + 1)
     sleep(SEND_FREQUENCY_IN_SECONDS + RETRIES_IN_SECONDS.last + 1)

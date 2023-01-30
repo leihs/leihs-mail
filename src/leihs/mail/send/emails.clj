@@ -12,9 +12,8 @@
     [postal.core :as postal]))
 
 (def email-base-sqlmap
-  (-> (sql/select :emails.* :users.email)
-      (sql/from :emails)
-      (sql/merge-left-join :users [:= :users.id :emails.user_id])))
+  (-> (sql/select :emails.*)
+      (sql/from :emails)))
 
 (defn- get-new-emails
   []
@@ -43,8 +42,8 @@
   [email]
   (let [sender-address (settings/smtp-sender-address)]
     (-> email
-        (select-keys [:from_address :email :subject :body])
-        (rename-keys {:from_address :from, :email :to})
+        (select-keys [:from_address :to_address :subject :body])
+        (rename-keys {:from_address :from, :to_address :to})
         (cond-> sender-address (assoc :sender sender-address)))))
 
 (defn send-message-opts
