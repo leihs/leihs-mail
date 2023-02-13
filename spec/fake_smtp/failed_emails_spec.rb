@@ -13,7 +13,7 @@ describe 'Sending of emails fails' do
       expect(email_2.error).to eq email.error
       expect(email_2.message).to eq email.message
       expect(Email.count).to eq 1
-      assert_not_received_email(email.from_address, email.user.email)
+      assert_not_received_email(email.from_address, email.to_address)
     end
   end
 
@@ -31,7 +31,24 @@ describe 'Sending of emails fails' do
       expect(email.error).to eq 'javax.mail.MessagingException'
       expect(email.message).to eq 'STARTTLS is required but host does not support STARTTLS'
       expect(Email.count).to eq 1
-      assert_not_received_email(email.from_address, email.user.email)
+      assert_not_received_email(email.from_address, email.to_address)
+    end
+  end
+
+  it 'fake sending if smtp disabled' do
+    SmtpSetting.first.update(enabled: false)
+
+    email = FactoryBot.create(:email, :unsent)
+    sleep(SEND_FREQUENCY_IN_SECONDS + 1)
+
+    expect_until_timeout do
+      email.reload
+      expect(email.trials).to eq 1
+      expect(email.code).to eq 1
+      expect(email.error).to eq 'SMTP_DISABLED'
+      expect(email.message).to eq 'Message not sent because of disabled SMTP setting.'
+      expect(Email.count).to eq 1
+      assert_not_received_email(email.from_address, email.to_address)
     end
   end
 end

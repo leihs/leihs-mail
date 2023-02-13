@@ -62,9 +62,9 @@
       (do (log/debug (str "sending email to: " (:email email)))
           (postal/send-message (send-message-opts) prepared-email))
       (do (log/warn "SMTP disabled. Message would be sent to: " (:email email))
-          {:code 0
-           :error :SUCCESS
-           :message "Message not sent in real because of disabled SMTP setting."}))))
+          {:code 1
+           :error :SMTP_DISABLED
+           :message "Message not sent because of disabled SMTP setting."}))))
 
 (defn- send-emails!
   [emails]
