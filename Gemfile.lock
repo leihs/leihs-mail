@@ -137,6 +137,7 @@ GEM
     pry (0.14.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
+    psych (3.3.4)
     public_suffix (5.0.0)
     racc (1.6.1)
     rack (2.2.4)
@@ -215,6 +216,7 @@ DEPENDENCIES
   pg_tasks!
   post_office!
   pry
+  psych (~> 3)
   rails (~> 6.1.0)
   rspec
   sequel
