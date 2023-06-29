@@ -26,6 +26,5 @@ scripts:
     body: |
       #!/usr/bin/env bash
       set -euo pipefail 
-      set -x
       SMTP_PID=`lsof -t -i :$LEIHS_MAIL_SMTP_PORT`
       kill -SIGINT $SMTP_PID

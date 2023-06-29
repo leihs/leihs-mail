@@ -3,11 +3,13 @@ tasks:
     name: "Unreachable smtp server spec"
     scripts:
       test:
-        body:
+        body: |
           #!/usr/bin/env bash
           set -euo pipefail
           export LEIHS_MAIL_SMTP_DOMAIN="example.com"
-          ./bin/rspec ./spec/smtp_server_unreachable_spec.rb
+          unset PGPORT; unset PGUSER
+          PGPORT=${PG15PORT} PGUSER=${PG15USER} \
+            ./bin/rspec ./spec/smtp_server_unreachable_spec.rb
         start_when:
           gems are bundled:
             script_key: mail-ruby-bundle

@@ -5,6 +5,11 @@ task_defaults:
   scripts:
     test:
       body: |
-        set -eux
+        #!/usr/bin/env bash
+        set -euo pipefail
+        cd $LEIHS_MAIL_DIR
+
         export LEIHS_MAIL_SMTP_DOMAIN="example.com"
-        bundle exec rspec $CIDER_CI_TASK_FILE
+        unset PGPORT; unset PGUSER
+        PGPORT=${PG15PORT} PGUSER=${PG15USER} \
+          ./bin/rspec $CIDER_CI_TASK_FILE

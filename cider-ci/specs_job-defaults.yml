@@ -22,7 +22,7 @@ context:
     max_trials: 2
 
     traits:
-      OpenJDK: true
+      asdf: true
 
     ports:
       LEIHS_MAIL_POP3_PORT:

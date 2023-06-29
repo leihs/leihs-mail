@@ -1,6 +1,6 @@
-require_relative './database.rb'
 require 'factory_bot'
 require 'faker'
+require 'pry'
 
 Sequel::Model.db = database
 Sequel::Model.send :alias_method, :save!, :save
