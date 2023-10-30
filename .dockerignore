@@ -21,7 +21,6 @@ docker-compose*
 /bin/build
 
 /resources/built-info.yml
-/leihs-ui
 /shared-clj/.git
 /shared-clj/.gitignore
 /shared-clj/.mux.yml

@@ -1,6 +1,5 @@
 ARG RUBY_VERSION=2.7.6-slim-bullseye
 ARG JAVA_VERSION=11-slim-bullseye
-ARG LEIHS_UI_VERSION=dev
 
 # more build args in later stages:
 # ARG WORKDIR=/leihs/mail
