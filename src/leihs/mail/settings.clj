@@ -1,23 +1,21 @@
 (ns leihs.mail.settings
   (:require
-    [clj-yaml.core :as yaml]
-    [camel-snake-kebab.core :as csk]
-    [environ.core :refer [env]]
-    [clojure.core.memoize :as memoize]
-    [clojure.java.jdbc :as jdbc]
-    [cuerdas.core :as string :refer [snake kebab upper human]]
-    [leihs.core
-     [core :refer [presence]]
-     [db :refer [get-ds]]
-     [sql :as sql]]
-    [taoensso.timbre :refer [debug info warn error]]
-    ))
+   [camel-snake-kebab.core :as csk]
+   [clj-yaml.core :as yaml]
+   [clojure.core.memoize :as memoize]
+   [clojure.java.jdbc :as jdbc]
+   [cuerdas.core :as string :refer [snake kebab upper human]]
+   [environ.core :refer [env]]
+   [leihs.core
+    [core :refer [presence]]
+    [db :refer [get-ds]]
+    [sql :as sql]]
+   [taoensso.timbre :refer [debug info warn error]]))
 
 ;;; state ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def pause-seconds* (atom nil))
 (def retries-seconds* (atom nil))
-
 
 ;;; cli ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -28,7 +26,7 @@
 (def send-pause-secs-opt
   [nil (long-opt-for-key mail-send-pause-secs-key)
    :default (-> (or (some-> mail-send-pause-secs-key env presence)
-                    "1" )
+                    "1")
                 Integer/parseInt)
    :parse-fn #(Integer/parseInt %)
    :validate [#(and (< 0 % 1000) (int? %))
@@ -50,8 +48,6 @@
    retries-in-seconds-opt])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
 
 (defn db-settings-uncached []
   (-> (sql/select :*)

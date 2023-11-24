@@ -1,15 +1,15 @@
 (ns leihs.mail.send.emails
   (:require
-    [clojure.java.jdbc :as jdbc]
-    [clojure.set :refer [rename-keys]]
-    [clojure.tools.logging :as log]
-    [leihs.core.db :refer [get-ds]]
-    [leihs.core.ring-exception :as exception]
-    [leihs.core.sql :as sql]
-    [leihs.mail.settings :as settings]
-    [logbug.catcher :as catcher]
-    [logbug.thrown :as thrown]
-    [postal.core :as postal]))
+   [clojure.java.jdbc :as jdbc]
+   [clojure.set :refer [rename-keys]]
+   [clojure.tools.logging :as log]
+   [leihs.core.db :refer [get-ds]]
+   [leihs.core.ring-exception :as exception]
+   [leihs.core.sql :as sql]
+   [leihs.mail.settings :as settings]
+   [logbug.catcher :as catcher]
+   [logbug.thrown :as thrown]
+   [postal.core :as postal]))
 
 (def email-base-sqlmap
   (-> (sql/select :emails.*)
@@ -69,21 +69,21 @@
 (defn- send-emails!
   [emails]
   (catcher/snatch
-    {:level :warn}
-    (doseq [email emails]
-      (let [result (try (send-email! email)
-                        (catch Exception e
-                          (log/warn (-> e
-                                        exception/get-cause
-                                        thrown/to-string))
-                          {:code 99,
-                           :error (-> e
-                                      .getClass
-                                      .getName),
-                           :message (.getMessage e)}))]
-        (-> email
-            (prepare-email-row result)
-            update-email!)))))
+   {:level :warn}
+   (doseq [email emails]
+     (let [result (try (send-email! email)
+                       (catch Exception e
+                         (log/warn (-> e
+                                       exception/get-cause
+                                       thrown/to-string))
+                         {:code 99,
+                          :error (-> e
+                                     .getClass
+                                     .getName),
+                          :message (.getMessage e)}))]
+       (-> email
+           (prepare-email-row result)
+           update-email!)))))
 
 (defn- send-new-emails!
   []
@@ -105,10 +105,10 @@
                                       (sql/from :retries))
                                   (sql/call :cast 1 :integer))])
       (sql/merge-where
-        [:>
-         (sql/call :extract (sql/raw "second from (now() - emails.updated_at)"))
-         (-> (sql/select (sql/raw "value[emails.trials]"))
-             (sql/from :retries))])
+       [:>
+        (sql/call :extract (sql/raw "second from (now() - emails.updated_at)"))
+        (-> (sql/select (sql/raw "value[emails.trials]"))
+            (sql/from :retries))])
       sql/format
       (->> (jdbc/query (get-ds)))))
 

@@ -2,46 +2,44 @@
   (:refer-clojure :exclude [str keyword])
   (:require [leihs.core.core :refer [keyword str presence]])
   (:require
-    [clojure.pprint :refer [pprint]]
-    [clojure.tools.cli :as cli :refer [parse-opts]]
-    [clojure.tools.logging :as logging]
-    [cuerdas.core :as string :refer [snake kebab upper human]]
-    [leihs.core.db :as db]
-    [leihs.core.http-server :as http-server]
-    [leihs.core.shutdown :as shutdown]
-    [leihs.core.status :as status]
-    [leihs.core.url.http :as http-url]
-    [leihs.core.url.jdbc :as jdbc-url]
-    [leihs.core.url.jdbc]
-    [leihs.mail.send]
-    [leihs.mail.settings :as settings]
-    [logbug.catcher :as catcher]
-    [logbug.debug :as debug]
-    [logbug.thrown :as thrown]
-    ))
+   [clojure.pprint :refer [pprint]]
+   [clojure.tools.cli :as cli :refer [parse-opts]]
+   [clojure.tools.logging :as logging]
+   [cuerdas.core :as string :refer [snake kebab upper human]]
+   [leihs.core.db :as db]
+   [leihs.core.http-server :as http-server]
+   [leihs.core.shutdown :as shutdown]
+   [leihs.core.status :as status]
+   [leihs.core.url.http :as http-url]
+   [leihs.core.url.jdbc]
+   [leihs.core.url.jdbc :as jdbc-url]
+   [leihs.mail.send]
+   [leihs.mail.settings :as settings]
+   [logbug.catcher :as catcher]
+   [logbug.debug :as debug]
+   [logbug.thrown :as thrown]))
 
 (defn long-opt-for-key [k]
   (str "--" (kebab k) " " (-> k snake upper)))
 
 (defn run [options]
   (catcher/snatch
-    {:return-fn (fn [e] (System/exit -1))}
-    (logging/info "Invoking run with options: " options)
-    (shutdown/init options)
-    (let [status (status/init)]
-      (db/init options (:health-check-registry status)))
-    (settings/init options)
-    (leihs.mail.send/run!)))
+   {:return-fn (fn [e] (System/exit -1))}
+   (logging/info "Invoking run with options: " options)
+   (shutdown/init options)
+   (let [status (status/init)]
+     (db/init options (:health-check-registry status)))
+   (settings/init options)
+   (leihs.mail.send/run!)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 (def cli-options
   (concat
-    [["-h" "--help"]
-     shutdown/pid-file-option]
-    db/cli-options
-    settings/cli-opts))
+   [["-h" "--help"]
+    shutdown/pid-file-option]
+   db/cli-options
+   settings/cli-opts))
 
 (defn main-usage [options-summary & more]
   (->> ["Leihs-Mail run"
