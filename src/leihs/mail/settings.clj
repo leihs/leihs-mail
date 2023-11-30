@@ -1,16 +1,16 @@
 (ns leihs.mail.settings
   (:require
-   [camel-snake-kebab.core :as csk]
    [clj-yaml.core :as yaml]
    [clojure.core.memoize :as memoize]
-   [clojure.java.jdbc :as jdbc]
-   [cuerdas.core :as string :refer [snake kebab upper human]]
+   [cuerdas.core :as string :refer [kebab snake upper]]
    [environ.core :refer [env]]
+   [honey.sql :refer [format] :rename {format sql-format}]
+   [honey.sql.helpers :as sql]
    [leihs.core
     [core :refer [presence]]
-    [db :refer [get-ds]]
-    [sql :as sql]]
-   [taoensso.timbre :refer [debug info warn error]]))
+    [db :refer [get-ds-next]]]
+   [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
+   [taoensso.timbre :refer [info]]))
 
 ;;; state ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -52,8 +52,8 @@
 (defn db-settings-uncached []
   (-> (sql/select :*)
       (sql/from :smtp_settings)
-      sql/format
-      (->> (jdbc/query (get-ds)))
+      sql-format
+      (->> (jdbc-query (get-ds-next)))
       first))
 
 (def db-settings

@@ -1,8 +1,6 @@
 (ns leihs.mail.send
   (:refer-clojure :exclude [run!])
   (:require
-   [camel-snake-kebab.core :as csk]
-   [clojure.java.jdbc :as jdbc]
    [clojure.tools.logging :as log]
    [leihs.mail.send.emails :as emails]
    [leihs.mail.settings :as settings]))

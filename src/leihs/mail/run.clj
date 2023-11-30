@@ -1,23 +1,18 @@
 (ns leihs.mail.run
   (:refer-clojure :exclude [str keyword])
-  (:require [leihs.core.core :refer [keyword str presence]])
   (:require
    [clojure.pprint :refer [pprint]]
    [clojure.tools.cli :as cli :refer [parse-opts]]
    [clojure.tools.logging :as logging]
-   [cuerdas.core :as string :refer [snake kebab upper human]]
+   [cuerdas.core :as string :refer [kebab snake upper]]
+   [leihs.core.core :refer [str]]
    [leihs.core.db :as db]
-   [leihs.core.http-server :as http-server]
    [leihs.core.shutdown :as shutdown]
    [leihs.core.status :as status]
-   [leihs.core.url.http :as http-url]
    [leihs.core.url.jdbc]
-   [leihs.core.url.jdbc :as jdbc-url]
    [leihs.mail.send]
    [leihs.mail.settings :as settings]
-   [logbug.catcher :as catcher]
-   [logbug.debug :as debug]
-   [logbug.thrown :as thrown]))
+   [logbug.catcher :as catcher]))
 
 (defn long-opt-for-key [k]
   (str "--" (kebab k) " " (-> k snake upper)))

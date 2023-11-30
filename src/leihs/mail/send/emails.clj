@@ -1,15 +1,18 @@
 (ns leihs.mail.send.emails
   (:require
-   [clojure.java.jdbc :as jdbc]
    [clojure.set :refer [rename-keys]]
    [clojure.tools.logging :as log]
-   [leihs.core.db :refer [get-ds]]
+   [honey.sql :refer [format] :rename {format sql-format}]
+   [honey.sql.helpers :as sql]
+   [leihs.core.db :refer [get-ds-next]]
    [leihs.core.ring-exception :as exception]
-   [leihs.core.sql :as sql]
    [leihs.mail.settings :as settings]
    [logbug.catcher :as catcher]
    [logbug.thrown :as thrown]
-   [postal.core :as postal]))
+   [next.jdbc :as jdbc :refer [execute!] :rename {execute! jdbc-execute!}]
+   [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
+   [postal.core :as postal]
+   [taoensso.timbre :refer [debug info warn error spy]]))
 
 (def email-base-sqlmap
   (-> (sql/select :emails.*)
@@ -18,22 +21,22 @@
 (defn- get-new-emails
   []
   (-> email-base-sqlmap
-      (sql/merge-where [:= :emails.trials 0])
-      sql/format
-      (->> (jdbc/query (get-ds)))))
+      (sql/where [:= :emails.trials 0])
+      sql-format
+      (->> (jdbc-query (get-ds-next)))))
 
 (defn- update-email!
   [email]
   (-> (sql/update :emails)
       (sql/set email)
       (sql/where [:= :id (:id email)])
-      sql/format
-      (->> (jdbc/execute! (get-ds)))))
+      sql-format
+      (->> (jdbc-execute! (get-ds-next)))))
 
 (defn- prepare-email-row
   [email result]
   (-> email
-      (merge result {:updated_at (sql/call :now)})
+      (merge result {:updated_at [:now]})
       (update :error name)
       (update :trials inc)
       (dissoc :email)))
@@ -93,24 +96,24 @@
   []
   (-> email-base-sqlmap
       (sql/with [:retries
-                 (sql/select [(sql/call :cast
-                                        (sql/array @settings/retries-seconds*)
-                                        (sql/raw "integer[]"))
+                 (sql/select [[:cast
+                               [:array @settings/retries-seconds*]
+                               [:raw "integer[]"]]
                               :value])])
-      (sql/merge-where [:> :emails.code 0])
-      (sql/merge-where [:<=
-                        :emails.trials
-                        (sql/call :array_length
-                                  (-> (sql/select :value)
-                                      (sql/from :retries))
-                                  (sql/call :cast 1 :integer))])
-      (sql/merge-where
+      (sql/where [:> :emails.code 0])
+      (sql/where [:<=
+                  :emails.trials
+                  [:array_length
+                   (-> (sql/select :value)
+                       (sql/from :retries))
+                   [:cast 1 :integer]]])
+      (sql/where
        [:>
-        (sql/call :extract (sql/raw "second from (now() - emails.updated_at)"))
-        (-> (sql/select (sql/raw "value[emails.trials]"))
+        [:extract [:raw "second from (now() - emails.updated_at)"]]
+        (-> (sql/select [[:raw "value[emails.trials]"]])
             (sql/from :retries))])
-      sql/format
-      (->> (jdbc/query (get-ds)))))
+      sql-format
+      (->> (jdbc-query (get-ds-next)))))
 
 (defn- retry-failed-emails!
   []
