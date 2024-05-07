@@ -4,7 +4,7 @@
    [clojure.tools.logging :as log]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.core.db :refer [get-ds-next]]
+   [leihs.core.db :refer [get-ds]]
    [leihs.core.ring-exception :as exception]
    [leihs.mail.settings :as settings]
    [logbug.catcher :as catcher]
@@ -23,7 +23,7 @@
   (-> email-base-sqlmap
       (sql/where [:= :emails.trials 0])
       sql-format
-      (->> (jdbc-query (get-ds-next)))))
+      (->> (jdbc-query (get-ds)))))
 
 (defn- update-email!
   [email]
@@ -31,7 +31,7 @@
       (sql/set email)
       (sql/where [:= :id (:id email)])
       sql-format
-      (->> (jdbc-execute! (get-ds-next)))))
+      (->> (jdbc-execute! (get-ds)))))
 
 (defn- prepare-email-row
   [email result]
@@ -113,7 +113,7 @@
         (-> (sql/select [[:raw "value[emails.trials]"]])
             (sql/from :retries))])
       sql-format
-      (->> (jdbc-query (get-ds-next)))))
+      (->> (jdbc-query (get-ds)))))
 
 (defn- retry-failed-emails!
   []

@@ -8,7 +8,7 @@
    [honey.sql.helpers :as sql]
    [leihs.core
     [core :refer [presence]]
-    [db :refer [get-ds-next]]]
+    [db :refer [get-ds]]]
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
    [taoensso.timbre :refer [info]]))
 
@@ -53,7 +53,7 @@
   (-> (sql/select :*)
       (sql/from :smtp_settings)
       sql-format
-      (->> (jdbc-query (get-ds-next)))
+      (->> (jdbc-query (get-ds)))
       first))
 
 (def db-settings
