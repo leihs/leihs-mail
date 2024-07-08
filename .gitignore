@@ -1,3 +1,4 @@
+.cider-ci_private/
 .cpcache/
 .nrepl-history
 .nrepl-port
