@@ -11,14 +11,18 @@ LEIHS_MAIL_POP3_PORT=${LEIHS_MAIL_POP3_PORT:-110}
 echo "smtp port: $LEIHS_MAIL_SMTP_PORT"
 echo "pop3 port: $LEIHS_MAIL_POP3_PORT"
 
-mkdir -p fake-mailbox
-mkdir -p log
-touch log/fake_smtp.log
-echo '' > log/fake_smtp.log
+LOG_DIR=tmp/log
+LOG_FILE=$LOG_DIR/fake_smtp.log
+FAKE_MAILBOX_DIR=tmp/fake-mailbox
+
+mkdir -p $FAKE_MAILBOX_DIR
+mkdir -p $LOG_DIR
+touch $LOG_FILE
+echo '' > $LOG_FILE
 
 bundle exec post_office \
   -v \
-  -l log/fake_smtp.log \
+  -l $LOG_FILE \
   -s $LEIHS_MAIL_SMTP_PORT \
   -p $LEIHS_MAIL_POP3_PORT \
-  -m './fake-mailbox'
+  -m $FAKE_MAILBOX_DIR

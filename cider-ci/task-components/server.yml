@@ -12,7 +12,7 @@ scripts:
       #!/usr/bin/env bash
       set -euo pipefail
       cd $LEIHS_MAIL_DIR
-      mkdir tmp
+      mkdir -p tmp
       unset PGPORT; unset PGUSER
       PGPORT=${PG15PORT} PGUSER=${PG15USER} \
         ./bin/run --db-name ${LEIHS_DATABASE_NAME} --pid-file tmp/service.pid

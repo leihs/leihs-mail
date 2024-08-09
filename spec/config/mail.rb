@@ -4,9 +4,11 @@ RETRIES_IN_SECONDS = (
   || [5, 10]
 )
 
-LOG_FILE_PATH = "#{Dir.pwd}/log/fake_smtp.log"
+LOG_DIR = "#{Dir.pwd}/tmp/log"
+LOG_FILE_PATH = "#{LOG_DIR}/fake_smtp.log"
+FAKE_MAILBOX_DIR = "#{Dir.pwd}/tmp/fake-mailbox"
 
-Dir.mkdir("log") unless Dir.exist?("log") 
+Dir.mkdir(LOG_DIR) unless Dir.exist?(LOG_DIR) 
 
 RSpec.configure do |config|
   config.before :each  do
@@ -14,4 +16,4 @@ RSpec.configure do |config|
   end
 end
 
-Dir.mkdir('fake-mailbox') unless Dir.exist?('fake-mailbox')
+Dir.mkdir(FAKE_MAILBOX_DIR) unless Dir.exist?(FAKE_MAILBOX_DIR)
