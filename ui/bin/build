@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# set -x
 
 PROJECT_DIR="$(cd -- "$(dirname "${BASH_SOURCE}")" ; cd ../.. > /dev/null 2>&1 && pwd -P)"
-ASDF_PLUGIN=java
-ASDF_PLUGIN_URL=https://github.com/halcyon/asdf-java.git
-
-source $PROJECT_DIR/bin/env/project.sh
+cd $PROJECT_DIR
+echo $PROJECT_DIR
 source $PROJECT_DIR/bin/env/asdf-helper.bash
+asdf-load
+# source shared-clj/bin/helpers/clj.sh
 
-asdf-update-plugin
+$PROJECT_DIR/bin/env/clojure-setup
 
 # vi: ft=sh
