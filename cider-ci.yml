@@ -9,6 +9,7 @@ jobs:
       any branch has been updated:
         type: branch
         include_match: ^.*$
+        exclude_match: '^.*(no-ci|hotspot).*$'
     context: { include: cider-ci/uberjar_job-context.yml }
 
   specs-without-fake-smtp-server:
@@ -31,6 +32,7 @@ jobs:
       any branch has been updated:
         type: branch
         include_match: ^.*$
+        exclude_match: '^.*(no-ci|hotspot).*$'
     context:
       task_defaults:
         git_options:
