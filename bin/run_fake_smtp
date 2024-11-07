@@ -13,9 +13,7 @@ echo "pop3 port: $LEIHS_MAIL_POP3_PORT"
 
 LOG_DIR=tmp/log
 LOG_FILE=$LOG_DIR/fake_smtp.log
-FAKE_MAILBOX_DIR=tmp/fake-mailbox
 
-mkdir -p $FAKE_MAILBOX_DIR
 mkdir -p $LOG_DIR
 touch $LOG_FILE
 echo '' > $LOG_FILE
@@ -24,5 +22,4 @@ bundle exec post_office \
   -v \
   -l $LOG_FILE \
   -s $LEIHS_MAIL_SMTP_PORT \
-  -p $LEIHS_MAIL_POP3_PORT \
-  -m $FAKE_MAILBOX_DIR
+  -p $LEIHS_MAIL_POP3_PORT

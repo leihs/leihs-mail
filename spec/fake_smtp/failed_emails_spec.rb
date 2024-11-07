@@ -2,6 +2,10 @@ require 'spec_helper'
 require 'shared_spec'
 
 describe 'Sending of emails fails' do
+  before :each do
+    empty_mailbox
+  end
+
   it 'maximum trials reached' do
     email = FactoryBot.create(:email, :failed, trials: RETRIES_IN_SECONDS.length + 1)
     sleep(SEND_FREQUENCY_IN_SECONDS + RETRIES_IN_SECONDS.last + 1)

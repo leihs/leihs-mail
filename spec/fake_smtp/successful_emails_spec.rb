@@ -2,6 +2,10 @@ require 'spec_helper'
 require 'shared_spec'
 
 describe 'Sending of emails succeeds (with domain)' do
+  before :each do
+    empty_mailbox
+  end
+
   it '1st trial' do
     domain = 'example.com'
     SmtpSetting.first.update(domain: domain)

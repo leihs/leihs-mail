@@ -1,6 +1,9 @@
 def assert_received_email(from, to)
-  s = "Received mail from <#{from}> with recipient <#{to}>"
-  expect(system "grep '#{s}' #{LOG_FILE_PATH}").to be true
+  expect(
+    Mail.all.filter do |m|
+      m.from == [from] && m.to == [to]
+    end.count
+  ).to eq 1
 end
 
 def assert_domain(domain)
@@ -9,8 +12,11 @@ def assert_domain(domain)
 end
 
 def assert_not_received_email(from, to)
-  s = "Received mail from <#{from}> with recipient <#{to}>"
-  expect(system "grep '#{s}' #{LOG_FILE_PATH}").to be false
+  expect(
+    Mail.all.any? do |m|
+      m.from_address == [from] && m.to_address == [to]
+    end
+  ).to be false
 end
 
 def expect_until_timeout(timeout = 15)

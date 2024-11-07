@@ -1,11 +1,4 @@
 GIT
-  remote: https://github.com/eins78/post_office
-  revision: c90bb4fbd2986b97dd0e6bd6e54103237be15bc7
-  ref: c90bb4fbd29
-  specs:
-    post_office (1.0.0)
-
-GIT
   remote: https://github.com/leihs/rails_pg-tasks
   revision: ad5725cc25ae53daac9b245000479b1e61cb3414
   branch: rails7
@@ -157,6 +150,7 @@ GEM
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     pg (1.5.5)
+    post_office (1.0.0)
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -241,11 +235,12 @@ DEPENDENCIES
   exiftool_vendored
   factory_bot
   faker
+  mail
   mimemagic
   money-rails
   pg
   pg_tasks!
-  post_office!
+  post_office
   pry
   psych (~> 3)
   rails (~> 7.2.0)

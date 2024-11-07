@@ -4,7 +4,6 @@ MAIL_DIR = Pathname(__FILE__).join("../..")
 require_relative MAIL_DIR.join('./database/spec/config/database')
 require 'config/emails'
 require 'config/factories'
-require 'config/mail'
 require 'pry'
 
 
@@ -24,7 +23,7 @@ RSpec.configure do |config|
     srand 1
     db_clean
     db_restore_data seeds_sql
-    update_smtp_settings
+    setup_smtp_settings
   end
 
 end
