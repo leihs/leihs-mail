@@ -1,11 +1,10 @@
-require 'active_support/all'
-require 'pathname'
+require "active_support/all"
+require "pathname"
 MAIL_DIR = Pathname(__FILE__).join("../..")
-require_relative MAIL_DIR.join('./database/spec/config/database')
-require 'config/emails'
-require 'config/factories'
-require 'pry'
-
+require_relative MAIL_DIR.join("./database/spec/config/database")
+require "config/emails"
+require "config/factories"
+require "pry"
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
@@ -18,12 +17,10 @@ RSpec.configure do |config|
 
   config.shared_context_metadata_behavior = :apply_to_host_groups
 
-
   config.before(:example) do |example|
     srand 1
     db_clean
     db_restore_data seeds_sql
     setup_smtp_settings
   end
-
 end

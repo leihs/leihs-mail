@@ -1,15 +1,13 @@
 include: container-build/cider-ci.yml
 
-
 jobs:
-
   build-mail-uberjar:
     name: Build mail uberjar
     run_when:
       any branch has been updated:
         type: branch
         include_match: ^.*$
-        exclude_match: '^.*(no-ci|hotspot).*$'
+        exclude_match: "^.*(no-ci|hotspot).*$"
     context: { include: cider-ci/uberjar_job-context.yml }
 
   specs-without-fake-smtp-server:
@@ -32,7 +30,7 @@ jobs:
       any branch has been updated:
         type: branch
         include_match: ^.*$
-        exclude_match: '^.*(no-ci|hotspot).*$'
+        exclude_match: "^.*(no-ci|hotspot).*$"
     context:
       task_defaults:
         git_options:
@@ -46,6 +44,13 @@ jobs:
                 #!/usr/bin/env bash
                 set -euo pipefail
                 ./bin/cljfmt check
+        standardrb-lint:
+          scripts:
+            test:
+              body: |
+                #!/usr/bin/env bash
+                set -euo pipefail
+                ./bin/standardrb
 
   good-to-merge:
     name: ⚑ Good To Merge

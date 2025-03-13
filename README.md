@@ -29,7 +29,6 @@ see
 
     ./bin/dev-run-backend --help
 
-
 ## Tests
 
 ### Tests with fake smtp server
@@ -58,6 +57,12 @@ boot focus
 
 ### Formatting Code
 
-Use `./bin/cljfmt check` and  `./bin/cljfmt fix`.
+#### Clojure
+
+Use `./bin/cljfmt check` and `./bin/cljfmt fix`.
 
 From vim you can use `:! ./bin/cljfmt fix %` to format the current file.
+
+#### Ruby
+
+Use `./bin/standardrb` and `./bin/standardrb --fix`.

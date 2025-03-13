@@ -1,20 +1,19 @@
-require 'mail'
+require "mail"
 
-LEIHS_MAIL_SMTP_PORT = ENV.fetch('LEIHS_MAIL_SMTP_PORT','25')
-SEND_FREQUENCY_IN_SECONDS = (ENV['LEIHS_MAIL_SEND_FREQUENCY_IN_SECONDS'] || 1).to_i
-RETRIES_IN_SECONDS = (
-  (ENV['LEIHS_MAIL_RETRIES_IN_SECONDS'] && JSON.parse(ENV['LEIHS_MAIL_RETRIES_IN_SECONDS'])) \
+LEIHS_MAIL_SMTP_PORT = ENV.fetch("LEIHS_MAIL_SMTP_PORT", "25")
+SEND_FREQUENCY_IN_SECONDS = (ENV["LEIHS_MAIL_SEND_FREQUENCY_IN_SECONDS"] || 1).to_i
+RETRIES_IN_SECONDS =
+  (ENV["LEIHS_MAIL_RETRIES_IN_SECONDS"] && JSON.parse(ENV["LEIHS_MAIL_RETRIES_IN_SECONDS"])) \
   || [5, 10]
-)
 
 LOG_DIR = "#{Dir.pwd}/tmp/log"
 LOG_FILE_PATH = "#{LOG_DIR}/fake_smtp.log"
 
-Dir.mkdir(LOG_DIR) unless Dir.exist?(LOG_DIR) 
+Dir.mkdir(LOG_DIR) unless Dir.exist?(LOG_DIR)
 
 RSpec.configure do |config|
-  config.before :each  do
-    File.open(LOG_FILE_PATH, 'w') {|file| file.truncate(0) }
+  config.before :each do
+    File.open(LOG_FILE_PATH, "w") { |file| file.truncate(0) }
   end
 end
 
@@ -36,12 +35,12 @@ def empty_mailbox
 end
 
 def setup_email_client
-  $mail ||= Mail.defaults do
+  $mail ||= Mail.defaults do # standard:disable Style/GlobalVars
     retriever_method(:pop3,
-                     address: ENV.fetch('LEIHS_MAIL_SMTP_ADDRESS', 'localhost'),
-                     port: ENV.fetch('LEIHS_MAIL_POP3_PORT', '110'),
-                     user_name: 'any',
-                     password: 'any',
-                     enable_ssl: false)
+      address: ENV.fetch("LEIHS_MAIL_SMTP_ADDRESS", "localhost"),
+      port: ENV.fetch("LEIHS_MAIL_POP3_PORT", "110"),
+      user_name: "any",
+      password: "any",
+      enable_ssl: false)
   end
 end

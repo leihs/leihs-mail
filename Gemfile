@@ -1,4 +1,5 @@
-eval_gemfile 'database/Gemfile'
+eval_gemfile "database/Gemfile"
 
 gem "post_office"
-gem 'mail'
+gem "mail"
+gem "standard", group: [:development, :test]
