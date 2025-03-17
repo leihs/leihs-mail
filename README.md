@@ -65,4 +65,4 @@ From vim you can use `:! ./bin/cljfmt fix %` to format the current file.
 
 #### Ruby
 
-Use `./bin/standardrb` and `./bin/standardrb --fix`.
+Use `./bin/rblint` and `./bin/rblint --fix`.
