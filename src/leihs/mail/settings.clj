@@ -88,6 +88,18 @@
 (defn smtp-enabled []
   (:enabled (db-settings)))
 
+(defn ms365-enabled []
+  (:ms365_enabled (db-settings)))
+
+(defn ms365-client-id []
+  (:ms365_client_id (db-settings)))
+
+(defn ms365-tenant-id []
+  (:ms365_tenant_id (db-settings)))
+
+(defn ms365-client-secret []
+  (:ms365_client_secret (db-settings)))
+
 (defn all []
   {:smtp-address (smtp-address)
    :smtp-port (smtp-port)
@@ -97,6 +109,10 @@
    :smtp-sender-address (smtp-sender-address)
    :smtp-enable-starttls-auto (smtp-enable-starttls-auto)
    :smtp-enabled (smtp-enabled)
+   :ms365-enabled (ms365-enabled)
+   :ms365-client-id (ms365-client-id)
+   :ms365-tenant-id (ms365-tenant-id)
+   :ms365-client-secret (ms365-client-secret)
    :pause-seconds* @pause-seconds*
    :retries-seconds* @retries-seconds*})
 

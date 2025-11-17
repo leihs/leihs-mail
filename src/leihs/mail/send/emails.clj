@@ -6,6 +6,7 @@
    [honey.sql.helpers :as sql]
    [leihs.core.db :refer [get-ds]]
    [leihs.core.ring-exception :as exception]
+   [leihs.mail.send.ms365 :as ms365]
    [leihs.mail.settings :as settings]
    [logbug.catcher :as catcher]
    [logbug.thrown :as thrown]
@@ -61,13 +62,19 @@
 
 (defn- send-email! [email]
   (let [prepared-email (prepare-email-message email)]
-    (if (settings/smtp-enabled)
-      (do (log/debug (str "sending email to: " (:email email)))
-          (postal/send-message (send-message-opts) prepared-email))
-      (do (log/warn "SMTP disabled. Message would be sent to: " (:email email))
+    (if-not (settings/smtp-enabled)
+      (do (log/warn "Email sending disabled. Message would be sent to: " (:to_address email))
           {:code 1
-           :error :SMTP_DISABLED
-           :message "Message not sent because of disabled SMTP setting."}))))
+           :error :EMAIL_DISABLED
+           :message "Message not sent because email sending is disabled."})
+
+      ;; Email sending is enabled
+      (if (settings/ms365-enabled)
+        (do (log/debug (str "Sending email via MS365 to: " (:to_address email)))
+            (ms365/send-via-graph-api prepared-email))
+
+        (do (log/debug (str "Sending email via SMTP to: " (:to_address email)))
+            (postal/send-message (send-message-opts) prepared-email))))))
 
 (defn- send-emails!
   [emails]
