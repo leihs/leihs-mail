@@ -1,11 +1,10 @@
 (ns leihs.mail.run
   (:refer-clojure :exclude [str keyword])
   (:require
+   [clojure.string :as str]
    [clojure.pprint :refer [pprint]]
-   [clojure.tools.cli :as cli :refer [parse-opts]]
+   [clojure.tools.cli :as cli]
    [clojure.tools.logging :as logging]
-   [cuerdas.core :as string :refer [kebab snake upper]]
-   [leihs.core.core :refer [str]]
    [leihs.core.db :as db]
    [leihs.core.shutdown :as shutdown]
    [leihs.core.status :as status]
@@ -14,12 +13,9 @@
    [leihs.mail.settings :as settings]
    [logbug.catcher :as catcher]))
 
-(defn long-opt-for-key [k]
-  (str "--" (kebab k) " " (-> k snake upper)))
-
 (defn run [options]
   (catcher/snatch
-   {:return-fn (fn [e] (System/exit -1))}
+   {:return-fn (fn [_] (System/exit -1))}
    (logging/info "Invoking run with options: " options)
    (shutdown/init options)
    (let [status (status/init)]
@@ -49,13 +45,11 @@
           ["-------------------------------------------------------------------"
            (with-out-str (pprint more))
            "-------------------------------------------------------------------"])]
-       flatten (clojure.string/join \newline)))
+       flatten (str/join \newline)))
 
 (defn main [gopts args]
-  (let [{:keys [options arguments errors summary]}
+  (let [{:keys [options summary]}
         (cli/parse-opts args cli-options :in-order true)
-        pass-on-args (->> [options (rest arguments)]
-                          flatten (into []))
         options (merge gopts options)]
     (cond
       (:help options) (println (main-usage summary {:args args :options options}))
