@@ -79,10 +79,16 @@
         (do
           (log/error "Failed to send email via MS365. Status:" status)
           (log/error "Response:" response-body)
-          {:code 1
-           :error :MS365_SEND_FAILED
-           :message (str "Failed to send via MS365 Graph API. Status: " status)
-           :response response-body})))
+          (let [error-details (try
+                                (let [parsed (json/read-str response-body :key-fn keyword)
+                                      error-msg (-> parsed :error :message)
+                                      error-code (-> parsed :error :code)]
+                                  (str error-code ": " error-msg))
+                                (catch Exception _
+                                  response-body))]
+            {:code 1
+             :error :MS365_SEND_FAILED
+             :message (str "MS365 API failed (Status " status "): " error-details)}))))
     (do
       (log/error "Failed to obtain MS365 access token")
       {:code 1
