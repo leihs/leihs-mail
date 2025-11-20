@@ -38,7 +38,7 @@
   [email result]
   (-> email
       (merge result {:updated_at [:now]})
-      (update :error name)
+      (update :error #(when % (name %)))
       (update :trials inc)
       (dissoc :email)))
 
@@ -81,19 +81,20 @@
   (catcher/snatch
    {:level :warn}
    (doseq [email emails]
-     (let [result (try (send-email! email)
-                       (catch Exception e
-                         (log/warn (-> e
-                                       exception/get-cause
-                                       thrown/to-string))
-                         {:code 99,
-                          :error (-> e
-                                     .getClass
-                                     .getName),
-                          :message (.getMessage e)}))]
-       (-> email
-           (prepare-email-row result)
-           update-email!)))))
+     (try
+       (let [result (send-email! email)]
+         (-> email
+             (prepare-email-row result)
+             update-email!))
+       (catch Exception e
+         (log/warn (-> e
+                       exception/get-cause
+                       thrown/to-string))
+         (-> email
+             (prepare-email-row {:code 99
+                                 :error (-> e .getClass .getName)
+                                 :message (.getMessage e)})
+             update-email!))))))
 
 (defn- send-new-emails!
   []
