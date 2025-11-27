@@ -27,12 +27,12 @@
       (->> (jdbc-query (get-ds)))))
 
 (defn- update-email!
-  [email]
+  [tx email]
   (-> (sql/update :emails)
       (sql/set email)
       (sql/where [:= :id (:id email)])
       sql-format
-      (->> (jdbc-execute! (get-ds)))))
+      (->> (jdbc-execute! tx))))
 
 (defn- prepare-email-row
   [email result]
@@ -60,7 +60,7 @@
     (settings/smtp-enable-starttls-auto)
     (merge {:starttls.required true, :starttls.enable true})))
 
-(defn- send-email! [email]
+(defn- send-email! [tx email]
   (let [prepared-email (prepare-email-message email)]
     (if-not (settings/smtp-enabled)
       (do (log/warn "Email sending disabled. Message would be sent to: " (:to_address email))
@@ -70,10 +70,35 @@
 
       ;; Email sending is enabled
       (if (settings/ms365-enabled)
-        (do (log/debug (str "Sending email via MS365 to: " (:to_address email)))
-            (ms365/send-via-graph-api prepared-email))
+        (let [from-address (:from_address email)
+              mailbox (ms365/get-mailbox tx from-address)]
+          (if mailbox
+            (let [;; Check if token needs refresh
+                  token-expired? (ms365/token-expired? (:token_expires_at mailbox))
+                  ;; Refresh token if needed
+                  current-token (if token-expired?
+                                  (do
+                                    (log/info (str "Access token expired for " from-address ", refreshing..."))
+                                    (if-let [new-token-data (ms365/refresh-access-token (:refresh_token mailbox))]
+                                      (do
+                                        (ms365/update-mailbox-token! tx from-address new-token-data)
+                                        (:access_token new-token-data))
+                                      (do
+                                        (log/error (str "Failed to refresh token for " from-address))
+                                        nil)))
+                                  (:access_token mailbox))]
+              (if current-token
+                (do #_(log/debug (str "Sending email via MS365 from: " from-address " to: " (:to_address email)))
+                    (ms365/send-via-graph-api prepared-email current-token))
+                {:code 1
+                 :error :MS365_TOKEN_REFRESH_FAILED
+                 :message (str "Failed to refresh MS365 token for sender: " from-address)}))
+            (do (log/error (str "MS365 enabled but no mailbox configured for: " from-address))
+                {:code 1
+                 :error :MS365_MAILBOX_NOT_FOUND
+                 :message (str "No MS365 mailbox configured for sender: " from-address)})))
 
-        (do (log/debug (str "Sending email via SMTP to: " (:to_address email)))
+        (do #_(log/debug (str "Sending email via SMTP to: " (:to_address email)))
             (postal/send-message (send-message-opts) prepared-email))))))
 
 (defn- send-emails!
@@ -81,20 +106,21 @@
   (catcher/snatch
    {:level :warn}
    (doseq [email emails]
-     (try
-       (let [result (send-email! email)]
-         (-> email
-             (prepare-email-row result)
-             update-email!))
-       (catch Exception e
-         (log/warn (-> e
-                       exception/get-cause
-                       thrown/to-string))
-         (-> email
-             (prepare-email-row {:code 99
-                                 :error (-> e .getClass .getName)
-                                 :message (.getMessage e)})
-             update-email!))))))
+     (jdbc/with-transaction+options [tx (get-ds)]
+       (try
+         (let [result (send-email! tx email)]
+           (-> email
+               (prepare-email-row result)
+               (->> (update-email! tx))))
+         (catch Exception e
+           (log/warn (-> e
+                         exception/get-cause
+                         thrown/to-string))
+           (-> email
+               (prepare-email-row {:code 99
+                                   :error (-> e .getClass .getName)
+                                   :message (.getMessage e)})
+               (->> (update-email! tx)))))))))
 
 (defn- send-new-emails!
   []
@@ -130,4 +156,4 @@
 (defn send!
   []
   (send-new-emails!)
-  (retry-failed-emails!))
+  #_(retry-failed-emails!))
