@@ -8,7 +8,7 @@
    [next.jdbc :as jdbc :refer [execute!] :rename {execute! jdbc-execute!}]
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
    [org.httpkit.client :as http]
-   [taoensso.timbre :as log :refer [debug spy]]))
+   [taoensso.timbre :as log]))
 
 ;;; Mailbox Management ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -19,7 +19,7 @@
       (sql/from :ms365_mailboxes)
       (sql/where [:= :id email-address])
       sql-format
-      (->> (jdbc-query tx) first spy)))
+      (->> (jdbc-query tx) first)))
 
 ;;; OAuth2 Token Acquisition ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -44,12 +44,8 @@
         status (:status response)
         body (:body response)]
 
-    ; (log/debug "MS365 token response status:" status)
-
     (if (= 200 status)
       (let [token-data (json/read-str body :key-fn keyword)]
-        ; (log/debug "Successfully obtained MS365 access token")
-        ; (log/debug "Token expires in:" (:expires_in token-data) "seconds")
         (:access_token token-data))
       (do
         (log/error "Failed to get MS365 token. Status:" status)
@@ -91,16 +87,12 @@
         status (:status response)
         body (:body response)]
 
-    (log/debug "MS365 token refresh response status:" status)
-
     (if (= 200 status)
       (let [token-data (json/read-str body :key-fn keyword)
             access-token (:access_token token-data)
             new-refresh-token (:refresh_token token-data)
             expires-in (:expires_in token-data)
             expires-at (t/plus (t/instant) (t/seconds expires-in))]
-        (log/info "Successfully refreshed MS365 access token")
-        (log/debug "New token expires in:" expires-in "seconds")
         {:access_token access-token
          :refresh_token (or new-refresh-token refresh-token)  ; Use new refresh token if provided
          :token_expires_at expires-at})
@@ -150,13 +142,9 @@
         status (:status response)
         response-body (:body response)]
 
-    ; (log/debug "MS365 Graph API send response status:" status)
-
     (if (= 202 status)
-      (do
-       (log/info "Email sent successfully via MS365 Graph API to:" to-address)
-       {:code 0
-        :message "Email sent successfully via MS365 Graph API"})
+      {:code 0
+       :message "Email sent successfully via MS365 Graph API"}
       (do
        (log/error "Failed to send email via MS365. Status:" status)
        (log/error "Response:" response-body)

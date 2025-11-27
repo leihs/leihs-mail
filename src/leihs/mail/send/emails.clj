@@ -1,7 +1,6 @@
 (ns leihs.mail.send.emails
   (:require
    [clojure.set :refer [rename-keys]]
-   [clojure.tools.logging :as log]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.db :refer [get-ds]]
@@ -13,7 +12,7 @@
    [next.jdbc :as jdbc :refer [execute!] :rename {execute! jdbc-execute!}]
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
    [postal.core :as postal]
-   [taoensso.timbre :refer [debug info warn error spy]]))
+   [taoensso.timbre :as log]))
 
 (def email-base-sqlmap
   (-> (sql/select :emails.*)
@@ -77,19 +76,12 @@
                   token-expired? (ms365/token-expired? (:token_expires_at mailbox))
                   ;; Refresh token if needed
                   current-token (if token-expired?
-                                  (do
-                                    (log/info (str "Access token expired for " from-address ", refreshing..."))
-                                    (if-let [new-token-data (ms365/refresh-access-token (:refresh_token mailbox))]
-                                      (do
-                                        (ms365/update-mailbox-token! tx from-address new-token-data)
-                                        (:access_token new-token-data))
-                                      (do
-                                        (log/error (str "Failed to refresh token for " from-address))
-                                        nil)))
+                                  (when-let [new-token-data (ms365/refresh-access-token (:refresh_token mailbox))]
+                                    (ms365/update-mailbox-token! tx from-address new-token-data)
+                                    (:access_token new-token-data))
                                   (:access_token mailbox))]
               (if current-token
-                (do #_(log/debug (str "Sending email via MS365 from: " from-address " to: " (:to_address email)))
-                    (ms365/send-via-graph-api prepared-email current-token))
+                (ms365/send-via-graph-api prepared-email current-token)
                 {:code 1
                  :error :MS365_TOKEN_REFRESH_FAILED
                  :message (str "Failed to refresh MS365 token for sender: " from-address)}))
@@ -98,8 +90,7 @@
                  :error :MS365_MAILBOX_NOT_FOUND
                  :message (str "No MS365 mailbox configured for sender: " from-address)})))
 
-        (do #_(log/debug (str "Sending email via SMTP to: " (:to_address email)))
-            (postal/send-message (send-message-opts) prepared-email))))))
+        (postal/send-message (send-message-opts) prepared-email)))))
 
 (defn- send-emails!
   [emails]
