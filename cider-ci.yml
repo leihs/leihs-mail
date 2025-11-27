@@ -20,6 +20,11 @@ jobs:
     include: cider-ci/specs_job-defaults.yml
     context: { include: cider-ci/specs-with-smtp_job-context.yml }
 
+  specs-with-fake-ms365-server:
+    name: Run specs WITH fake MS365 server
+    include: cider-ci/specs_job-defaults.yml
+    context: { include: cider-ci/specs-with-ms365_job-context.yml }
+
   lint:
     name: "Linting"
     description: |

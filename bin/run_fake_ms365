@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+PROJECT_DIR="$(cd -- "$(dirname "${BASH_SOURCE}")" ; cd .. > /dev/null 2>&1 && pwd -P)"
+cd $PROJECT_DIR
+./bin/env/ruby-setup
+
+LEIHS_MAIL_FAKE_MS365_PORT=${LEIHS_MAIL_FAKE_MS365_PORT:-9365}
+
+echo "fake MS365 server port: $LEIHS_MAIL_FAKE_MS365_PORT"
+
+bundle exec ruby spec/fake_ms365_server.rb

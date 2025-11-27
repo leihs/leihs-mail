@@ -7,6 +7,10 @@ depends_on: &GOOD_TO_MERGE_DEPENDENTS
     type: job
     job_key: specs-with-fake-smtp-server
     states: [passed]
+  specs with fake ms365 have passed:
+    type: job
+    job_key: specs-with-fake-ms365-server
+    states: [passed]
   specs without fake smtp have passed:
     type: job
     job_key: specs-without-fake-smtp-server
