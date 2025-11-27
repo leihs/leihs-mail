@@ -23,6 +23,11 @@
 
 ;;; OAuth2 Token Acquisition ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn- replace-placeholder
+  "Replace a placeholder in URL template with actual value"
+  [url-template placeholder value]
+  (clojure.string/replace url-template placeholder (str value)))
+
 (defn get-oauth2-token
   "Get OAuth2 access token using client credentials flow"
   []
@@ -72,7 +77,7 @@
   (let [client-id (settings/ms365-client-id)
         tenant-id (settings/ms365-tenant-id)
         client-secret (settings/ms365-client-secret)
-        token-url (str "https://login.microsoftonline.com/" tenant-id "/oauth2/v2.0/token")
+        token-url (replace-placeholder (settings/m365-token-url) "{tenant_id}" tenant-id)
         form-params {:client_id client-id
                      :refresh_token refresh-token
                      :client_secret client-secret
@@ -124,7 +129,7 @@
         to-address (:to email-map)
         subject (:subject email-map)
         body (:body email-map)
-        send-url (str "https://graph.microsoft.com/v1.0/users/" from-address "/sendMail")
+        send-url (replace-placeholder (settings/m365-graph-send-url) "{user_id}" from-address)
 
         email-payload {:message {:subject subject
                                  :body {:contentType "Text"
