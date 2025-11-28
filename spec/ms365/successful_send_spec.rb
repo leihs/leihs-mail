@@ -39,7 +39,7 @@ RSpec.describe "MS365 email sending", type: :request do
       # Create mailbox with expired token
       mailbox = FactoryBot.create(:ms365_mailbox, :expired_token, id: "sender@example.com")
       old_access_token = mailbox.access_token
-      old_refresh_token = mailbox.refresh_token
+      mailbox.refresh_token
 
       # Create email to send
       email = FactoryBot.create(:email, :unsent, from_address: mailbox.id)

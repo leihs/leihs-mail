@@ -147,4 +147,4 @@
 (defn send!
   []
   (send-new-emails!)
-  #_(retry-failed-emails!))
+  (retry-failed-emails!))

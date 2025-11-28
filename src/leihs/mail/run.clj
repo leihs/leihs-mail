@@ -1,8 +1,8 @@
 (ns leihs.mail.run
   (:refer-clojure :exclude [str keyword])
   (:require
-   [clojure.string :as str]
    [clojure.pprint :refer [pprint]]
+   [clojure.string :as str]
    [clojure.tools.cli :as cli]
    [clojure.tools.logging :as logging]
    [leihs.core.db :as db]

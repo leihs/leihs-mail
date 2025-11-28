@@ -1,6 +1,7 @@
 (ns leihs.mail.send.ms365
   (:require
    [clojure.data.json :as json]
+   [clojure.string]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [java-time :as t]
@@ -27,35 +28,6 @@
   "Replace a placeholder in URL template with actual value"
   [url-template placeholder value]
   (clojure.string/replace url-template placeholder (str value)))
-
-(defn get-oauth2-token
-  "Get OAuth2 access token using client credentials flow"
-  []
-  (let [client-id (settings/ms365-client-id)
-        tenant-id (settings/ms365-tenant-id)
-        client-secret (settings/ms365-client-secret)
-        scope "https://graph.microsoft.com/.default"
-        token-url (str "https://login.microsoftonline.com/" tenant-id "/oauth2/v2.0/token")
-        form-params {:client_id client-id
-                     :scope scope
-                     :client_secret client-secret
-                     :grant_type "client_credentials"}
-
-        response (deref (http/post token-url
-                                   {:form-params form-params})
-                        10000  ; timeout in ms (10 seconds)
-                        {:error "timeout"})
-
-        status (:status response)
-        body (:body response)]
-
-    (if (= 200 status)
-      (let [token-data (json/read-str body :key-fn keyword)]
-        (:access_token token-data))
-      (do
-        (log/error "Failed to get MS365 token. Status:" status)
-        (log/error "Response:" body)
-        nil))))
 
 ;;; Token Management ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -151,15 +123,15 @@
       {:code 0
        :message "Email sent successfully via MS365 Graph API"}
       (do
-       (log/error "Failed to send email via MS365. Status:" status)
-       (log/error "Response:" response-body)
-       (let [error-details (try
-                            (let [parsed (json/read-str response-body :key-fn keyword)
-                                  error-msg (-> parsed :error :message)
-                                  error-code (-> parsed :error :code)]
-                              (str error-code ": " error-msg))
-                            (catch Exception _
-                              response-body))]
-         {:code 1
-          :error :MS365_SEND_FAILED
-          :message (str "MS365 API failed (Status " status "): " error-details)})))))
+        (log/error "Failed to send email via MS365. Status:" status)
+        (log/error "Response:" response-body)
+        (let [error-details (try
+                              (let [parsed (json/read-str response-body :key-fn keyword)
+                                    error-msg (-> parsed :error :message)
+                                    error-code (-> parsed :error :code)]
+                                (str error-code ": " error-msg))
+                              (catch Exception _
+                                response-body))]
+          {:code 1
+           :error :MS365_SEND_FAILED
+           :message (str "MS365 API failed (Status " status "): " error-details)})))))

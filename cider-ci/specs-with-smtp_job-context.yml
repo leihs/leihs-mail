@@ -1,5 +1,5 @@
 generate_tasks:
-  include_match: spec/fake_smtp/.*_spec.rb
+  include_match: spec/smtp/.*_spec.rb
 task_defaults:
   include: cider-ci/task-components/fake-smtp-server.yml
   scripts:
