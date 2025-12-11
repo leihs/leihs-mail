@@ -64,8 +64,8 @@
     (if-not (settings/smtp-enabled)
       (do (log/warn "Email sending disabled. Message would be sent to: " (:to_address email))
           {:code 1
-           :error :EMAIL_DISABLED
-           :message "Message not sent because email sending is disabled."})
+           :error :SMTP_DISABLED
+           :message "Message not sent because of disabled SMTP setting."})
 
       ;; Email sending is enabled
       (if (settings/ms365-enabled)
