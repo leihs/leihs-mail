@@ -100,11 +100,11 @@
 (defn ms365-client-secret []
   (:ms365_client_secret (db-settings)))
 
-(defn m365-token-url []
-  (:m365_token_url (db-settings)))
+(defn ms365-token-url []
+  (:ms365_token_url (db-settings)))
 
-(defn m365-graph-send-url []
-  (:m365_graph_send_url (db-settings)))
+(defn ms365-graph-send-url []
+  (:ms365_graph_send_url (db-settings)))
 
 (defn ms365-configured?
   "Check if all required MS365 settings are configured"

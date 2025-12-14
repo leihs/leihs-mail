@@ -49,7 +49,7 @@
   (let [client-id (settings/ms365-client-id)
         tenant-id (settings/ms365-tenant-id)
         client-secret (settings/ms365-client-secret)
-        token-url (replace-placeholder (settings/m365-token-url) "{tenant_id}" tenant-id)
+        token-url (replace-placeholder (settings/ms365-token-url) "{tenant_id}" tenant-id)
         form-params {:client_id client-id
                      :refresh_token refresh-token
                      :client_secret client-secret
@@ -101,7 +101,7 @@
         to-address (:to email-map)
         subject (:subject email-map)
         body (:body email-map)
-        send-url (replace-placeholder (settings/m365-graph-send-url) "{user_id}" from-address)
+        send-url (replace-placeholder (settings/ms365-graph-send-url) "{user_id}" from-address)
 
         email-payload {:message {:subject subject
                                  :body {:contentType "Text"
