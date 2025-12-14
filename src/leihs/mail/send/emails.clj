@@ -69,27 +69,37 @@
 
       ;; Email sending is enabled
       (if (settings/ms365-enabled)
-        (let [from-address (:from_address email)
-              mailbox (ms365/get-mailbox tx from-address)]
-          (if mailbox
-            (let [;; Check if token needs refresh
-                  token-expired? (ms365/token-expired? (:token_expires_at mailbox))
-                  ;; Refresh token if needed
-                  current-token (if token-expired?
-                                  (when-let [new-token-data (ms365/refresh-access-token (:refresh_token mailbox))]
-                                    (ms365/update-mailbox-token! tx from-address new-token-data)
-                                    (:access_token new-token-data))
-                                  (:access_token mailbox))]
-              (if current-token
-                (ms365/send-via-graph-api prepared-email current-token)
-                {:code 1
-                 :error :MS365_TOKEN_REFRESH_FAILED
-                 :message (str "Failed to refresh MS365 token for sender: " from-address)}))
-            (do (log/error (str "MS365 enabled but no mailbox configured for: " from-address))
-                {:code 1
-                 :error :MS365_MAILBOX_NOT_FOUND
-                 :message (str "No MS365 mailbox configured for sender: " from-address)})))
+        ;; MS365 is enabled, check if it's configured
+        (if (settings/ms365-configured?)
+          ;; MS365 is properly configured, proceed with MS365
+          (let [from-address (:from_address email)
+                mailbox (ms365/get-mailbox tx from-address)]
+            (if mailbox
+              (let [;; Check if token needs refresh
+                    token-expired? (ms365/token-expired? (:token_expires_at mailbox))
+                    ;; Refresh token if needed
+                    current-token (if token-expired?
+                                    (when-let [new-token-data (ms365/refresh-access-token (:refresh_token mailbox))]
+                                      (ms365/update-mailbox-token! tx from-address new-token-data)
+                                      (:access_token new-token-data))
+                                    (:access_token mailbox))]
+                (if current-token
+                  (ms365/send-via-graph-api prepared-email current-token)
+                  {:code 1
+                   :error :MS365_TOKEN_REFRESH_FAILED
+                   :message (str "Failed to refresh MS365 token for sender: " from-address)}))
+              (do (log/error (str "MS365 enabled but no mailbox configured for: " from-address))
+                  {:code 1
+                   :error :MS365_MAILBOX_NOT_FOUND
+                   :message (str "No MS365 mailbox configured for sender: " from-address)})))
 
+          ;; MS365 is enabled but not fully configured
+          (do (log/error "MS365 enabled but not fully configured. Missing required settings.")
+              {:code 1
+               :error :MS365_NOT_CONFIGURED
+               :message "MS365 is enabled but required configuration settings are missing."}))
+
+        ;; MS365 not enabled, use SMTP
         (postal/send-message (send-message-opts) prepared-email)))))
 
 (defn- send-emails!

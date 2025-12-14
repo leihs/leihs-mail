@@ -106,6 +106,16 @@
 (defn m365-graph-send-url []
   (:m365_graph_send_url (db-settings)))
 
+(defn ms365-configured?
+  "Check if all required MS365 settings are configured"
+  []
+  (let [settings (db-settings)]
+    (and (presence (:ms365_client_id settings))
+         (presence (:ms365_tenant_id settings))
+         (presence (:ms365_client_secret settings))
+         (presence (:ms365_token_url settings))
+         (presence (:ms365_graph_send_url settings)))))
+
 ;;; init ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn init [opts]
