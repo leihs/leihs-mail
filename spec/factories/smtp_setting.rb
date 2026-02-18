@@ -10,8 +10,14 @@ FactoryBot.define do
       ms365_client_id { "test-client-id-#{SecureRandom.uuid}" }
       ms365_tenant_id { "test-tenant-id-#{SecureRandom.uuid}" }
       ms365_client_secret { "test-client-secret-#{SecureRandom.hex(32)}" }
-      m365_token_url { "https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token" }
-      m365_graph_send_url { "https://graph.microsoft.com/v1.0/users/{user_id}/sendMail" }
+    end
+
+    trait :ms365_rbac do
+      ms365_enabled { true }
+      ms365_auth_mode { "rbac" }
+      ms365_client_id { "test-client-id-#{SecureRandom.uuid}" }
+      ms365_tenant_id { "test-tenant-id-#{SecureRandom.uuid}" }
+      ms365_client_secret { "test-client-secret-#{SecureRandom.hex(32)}" }
     end
   end
 end

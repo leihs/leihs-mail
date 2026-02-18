@@ -106,6 +106,9 @@
 (defn ms365-graph-send-url []
   (:ms365_graph_send_url (db-settings)))
 
+(defn ms365-auth-mode []
+  (:ms365_auth_mode (db-settings)))
+
 (defn ms365-configured?
   "Check if all required MS365 settings are configured"
   []

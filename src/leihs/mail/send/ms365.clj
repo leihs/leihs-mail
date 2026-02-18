@@ -11,6 +11,12 @@
    [org.httpkit.client :as http]
    [taoensso.timbre :as log]))
 
+;;; RBAC Token Cache ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; In-memory cache for RBAC (Client Credentials) flow.
+;; Single tenant-wide token; re-acquired automatically on restart (~200ms).
+(defonce rbac-token-cache* (atom nil))
+
 ;;; Mailbox Management ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn get-mailbox
@@ -77,6 +83,43 @@
         (log/error "Failed to refresh MS365 token. Status:" status)
         (log/error "Response:" body)
         nil))))
+
+(defn acquire-rbac-token
+  "Acquire access token using Client Credentials grant (RBAC mode).
+   Returns {:access_token ... :expires_at <Instant>} or nil on failure."
+  []
+  (let [token-url (-> (settings/ms365-token-url)
+                      (replace-placeholder "{tenant_id}" (settings/ms365-tenant-id)))
+        form-params {:client_id     (settings/ms365-client-id)
+                     :client_secret (settings/ms365-client-secret)
+                     :grant_type    "client_credentials"
+                     :scope         "https://graph.microsoft.com/.default"}
+        response (deref (http/post token-url {:form-params form-params})
+                        10000
+                        {:error "timeout"})
+        status (:status response)
+        body   (:body response)]
+    (if (= 200 status)
+      (let [token-data  (json/read-str body :key-fn keyword)
+            expires-at  (t/plus (t/instant) (t/seconds (:expires_in token-data)))]
+        {:access_token (:access_token token-data)
+         :expires_at   expires-at})
+      (do
+        (log/error "Failed to acquire RBAC token. Status:" status)
+        (log/error "Response:" body)
+        nil))))
+
+(defn get-rbac-access-token
+  "Return a valid RBAC access token, using cache if >5 min remaining."
+  []
+  (let [cached @rbac-token-cache*
+        now    (t/instant)]
+    (if (and cached
+             (t/before? now (t/minus (:expires_at cached) (t/minutes 5))))
+      (:access_token cached)
+      (when-let [new-token (acquire-rbac-token)]
+        (reset! rbac-token-cache* new-token)
+        (:access_token new-token)))))
 
 (defn update-mailbox-token!
   "Update mailbox with new token information"

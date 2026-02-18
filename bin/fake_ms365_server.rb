@@ -5,18 +5,30 @@ class FakeMs365Server < Sinatra::Base
   set :port, ENV.fetch("LEIHS_MAIL_FAKE_MS365_PORT", "9365")
   set :bind, "127.0.0.1"
 
-  # Token refresh endpoint
+  # Token endpoint
   # Matches: /{tenant_id}/oauth2/v2.0/token
   post "/:tenant_id/oauth2/v2.0/token" do
     content_type :json
 
-    # Return a fake token response
-    {
-      access_token: "fake_access_token_#{SecureRandom.hex(32)}",
-      refresh_token: "fake_refresh_token_#{SecureRandom.hex(32)}",
-      expires_in: 3600,
-      token_type: "Bearer"
-    }.to_json
+    case params[:grant_type]
+    when "client_credentials"
+      {
+        access_token: "fake_rbac_access_token_#{SecureRandom.hex(32)}",
+        expires_in: 3600,
+        token_type: "Bearer"
+      }.to_json
+    when "refresh_token"
+      {
+        access_token: "fake_access_token_#{SecureRandom.hex(32)}",
+        refresh_token: "fake_refresh_token_#{SecureRandom.hex(32)}",
+        expires_in: 3600,
+        token_type: "Bearer"
+      }.to_json
+    else
+      status 400
+      { error: "unsupported_grant_type",
+        error_description: "Grant type '#{params[:grant_type]}' is not supported" }.to_json
+    end
   end
 
   # Send email endpoint

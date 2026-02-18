@@ -11,8 +11,8 @@ RSpec.describe "MS365 email sending", type: :request do
       ms365_client_id: "test-client-id",
       ms365_tenant_id: "test-tenant-id",
       ms365_client_secret: "test-client-secret",
-      m365_token_url: "http://localhost:#{fake_ms365_port}/{tenant_id}/oauth2/v2.0/token",
-      m365_graph_send_url: "http://localhost:#{fake_ms365_port}/v1.0/users/{user_id}/sendMail"
+      ms365_token_url: "http://localhost:#{fake_ms365_port}/{tenant_id}/oauth2/v2.0/token",
+      ms365_graph_send_url: "http://localhost:#{fake_ms365_port}/v1.0/users/{user_id}/sendMail"
     )
   end
 
