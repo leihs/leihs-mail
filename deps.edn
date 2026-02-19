@@ -1,15 +1,13 @@
 {:paths [:cljc-paths :resource-paths]
- :deps {
-        com.draines/postal {:mvn/version "2.0.5"}
+
+ :deps {com.draines/postal {:mvn/version "2.0.5"}
         leihs-core/leihs-core {:local/root "./shared-clj"}
         environ/environ {:mvn/version "1.2.0"}
         clojure.java-time/clojure.java-time {:mvn/version "1.4.2"}
         }
 
- :aliases {
-
-           :build {:deps
-                   {io.github.leihs/tools.build 
+ :aliases {:build {:deps
+                   {io.github.leihs/tools.build
                     {:git/tag "v0.9.5-leihs"
                      :git/sha "94a26a9"}}
                    :ns-default scripts.build}
@@ -18,11 +16,15 @@
 
            :cljfmt {:extra-deps {io.github.weavejester/cljfmt
                                  {:git/tag "0.11.2"
-                                  :sha "fb26b22f569724b05c93eb2502592dfc2de898c3"
-                                  }}
+                                  :sha "fb26b22f569724b05c93eb2502592dfc2de898c3"}}
                     :main-opts ["-m" "cljfmt.main"]}
 
-           :outdated {:extra-deps {com.github.liquidz/antq {:mvn/version "2.5.1109"} }
+           :outdated {:extra-deps {com.github.liquidz/antq {:mvn/version "2.5.1109"}}
                       :main-opts ["-m" "antq.core"]}
+
+           :clj-watson {:replace-deps
+                        {io.github.clj-holmes/clj-watson
+                         {:git/tag "v6.0.1" :git/sha "b520351"}}
+                        :main-opts ["-m" "clj-watson.cli"]}
 
            :resource-paths ["resources"]}}
