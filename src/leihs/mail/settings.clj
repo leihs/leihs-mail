@@ -109,6 +109,12 @@
 (defn ms365-auth-mode []
   (:ms365_auth_mode (db-settings)))
 
+(defn smtp-configured?
+  []
+  (let [settings (db-settings)]
+    (and (presence (:address settings))
+         (presence (:port settings)))))
+
 (defn ms365-configured?
   "Check if all required MS365 settings are configured"
   []

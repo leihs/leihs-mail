@@ -109,7 +109,11 @@
                :message "MS365 is enabled but required configuration settings are missing."}))
 
         ;; MS365 not enabled, use SMTP
-        (postal/send-message (send-message-opts) prepared-email)))))
+        (if (settings/smtp-configured?)
+          (postal/send-message (send-message-opts) prepared-email)
+          {:code 1
+           :error :SMTP_NOT_CONFIGURED
+           :message "SMTP enabled but address/port missing."})))))
 
 (defn- send-emails!
   [emails]
@@ -123,13 +127,12 @@
                (prepare-email-row result)
                (->> (update-email! tx))))
          (catch Exception e
-           (log/warn (-> e
-                         exception/get-cause
-                         thrown/to-string))
+           (log/warn (try (-> e exception/get-cause thrown/to-string)
+                          (catch Exception _ (str e))))
            (-> email
                (prepare-email-row {:code 99
                                    :error (-> e .getClass .getName)
-                                   :message (.getMessage e)})
+                                   :message (or (.getMessage e) (str e))})
                (->> (update-email! tx)))))))))
 
 (defn- send-new-emails!
