@@ -156,7 +156,7 @@
                    [:cast 1 :integer]]])
       (sql/where
        [:>
-        [:extract [:raw "second from (now() - emails.updated_at)"]]
+        [:extract [:raw "epoch from (now() - emails.updated_at)"]]
         (-> (sql/select [[:raw "value[emails.trials]"]])
             (sql/from :retries))])
       sql-format
