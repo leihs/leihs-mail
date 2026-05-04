@@ -30,7 +30,7 @@
                 Integer/parseInt)
    :parse-fn #(Integer/parseInt %)
    :validate [#(and (< 0 % 1000) (int? %))
-              #(str "must be an int between 0 and 100")]])
+              #(constantly "must be an int between 0 and 100")]])
 
 (def mail-retries-seconds*-key :mail-retries-seconds)
 (def retries-in-seconds-opt
@@ -41,7 +41,7 @@
    :parse-fn yaml/parse-string
    :validate [#(and (seq %)
                     (every? int? %))
-              #("YAML parseable, non empty array of integers")]])
+              #(constantly "YAML parseable, non empty array of integers")]])
 
 (def cli-opts
   [send-pause-secs-opt
@@ -88,17 +88,42 @@
 (defn smtp-enabled []
   (:enabled (db-settings)))
 
-(defn all []
-  {:smtp-address (smtp-address)
-   :smtp-port (smtp-port)
-   :smtp-username (smtp-username)
-   :smtp-password (smtp-password)
-   :smtp-domain (smtp-domain)
-   :smtp-sender-address (smtp-sender-address)
-   :smtp-enable-starttls-auto (smtp-enable-starttls-auto)
-   :smtp-enabled (smtp-enabled)
-   :pause-seconds* @pause-seconds*
-   :retries-seconds* @retries-seconds*})
+(defn ms365-enabled []
+  (:ms365_enabled (db-settings)))
+
+(defn ms365-client-id []
+  (:ms365_client_id (db-settings)))
+
+(defn ms365-tenant-id []
+  (:ms365_tenant_id (db-settings)))
+
+(defn ms365-client-secret []
+  (:ms365_client_secret (db-settings)))
+
+(defn ms365-token-url []
+  (:ms365_token_url (db-settings)))
+
+(defn ms365-graph-send-url []
+  (:ms365_graph_send_url (db-settings)))
+
+(defn ms365-auth-mode []
+  (:ms365_auth_mode (db-settings)))
+
+(defn smtp-configured?
+  []
+  (let [settings (db-settings)]
+    (and (presence (:address settings))
+         (presence (:port settings)))))
+
+(defn ms365-configured?
+  "Check if all required MS365 settings are configured"
+  []
+  (let [settings (db-settings)]
+    (and (presence (:ms365_client_id settings))
+         (presence (:ms365_tenant_id settings))
+         (presence (:ms365_client_secret settings))
+         (presence (:ms365_token_url settings))
+         (presence (:ms365_graph_send_url settings)))))
 
 ;;; init ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

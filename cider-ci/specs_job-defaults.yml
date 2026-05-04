@@ -31,6 +31,9 @@ context:
       LEIHS_MAIL_SMTP_PORT:
         min: 3990
         max: 3999
+      LEIHS_MAIL_FAKE_MS365_PORT:
+        min: 4000
+        max: 4009
 
     environment_variables:
       LEIHS_DATABASE_NAME: leihs_api_{{CIDER_CI_TRIAL_ID}}

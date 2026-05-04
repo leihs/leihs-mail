@@ -1,0 +1,30 @@
+scripts:
+
+  run-fake-ms365-server:
+    start_when:
+      bundled:
+        script_key: mail-ruby-bundle
+    timeout: 5 Minutes
+    body: |
+      #!/usr/bin/env bash
+      set -euo pipefail
+      cd $LEIHS_MAIL_DIR
+      ./bin/run_fake_ms365
+
+  test:
+    start_when:
+      fake-ms365-server is running:
+        script_key: run-fake-ms365-server
+        states: [executing]
+
+  shutdown_fake-ms365-server:
+    timeout: 3 Seconds
+    start_when:
+      test is terminal:
+        script_key: test
+        states: [aborted, defective, passed, failed, skipped]
+    body: |
+      #!/usr/bin/env bash
+      set -euo pipefail
+      MS365_PID=`lsof -t -i :$LEIHS_MAIL_FAKE_MS365_PORT`
+      kill -SIGINT $MS365_PID

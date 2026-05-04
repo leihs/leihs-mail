@@ -1,18 +1,18 @@
 (ns leihs.mail.send.emails
   (:require
    [clojure.set :refer [rename-keys]]
-   [clojure.tools.logging :as log]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.db :refer [get-ds]]
    [leihs.core.ring-exception :as exception]
+   [leihs.mail.send.ms365 :as ms365]
    [leihs.mail.settings :as settings]
    [logbug.catcher :as catcher]
    [logbug.thrown :as thrown]
    [next.jdbc :as jdbc :refer [execute!] :rename {execute! jdbc-execute!}]
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
    [postal.core :as postal]
-   [taoensso.timbre :refer [debug info warn error spy]]))
+   [taoensso.timbre :as log]))
 
 (def email-base-sqlmap
   (-> (sql/select :emails.*)
@@ -26,18 +26,18 @@
       (->> (jdbc-query (get-ds)))))
 
 (defn- update-email!
-  [email]
+  [tx email]
   (-> (sql/update :emails)
       (sql/set email)
       (sql/where [:= :id (:id email)])
       sql-format
-      (->> (jdbc-execute! (get-ds)))))
+      (->> (jdbc-execute! tx))))
 
 (defn- prepare-email-row
   [email result]
   (-> email
       (merge result {:updated_at [:now]})
-      (update :error name)
+      (update :error #(when % (name %)))
       (update :trials inc)
       (dissoc :email)))
 
@@ -59,34 +59,81 @@
     (settings/smtp-enable-starttls-auto)
     (merge {:starttls.required true, :starttls.enable true})))
 
-(defn- send-email! [email]
+(defn- send-email! [tx email]
   (let [prepared-email (prepare-email-message email)]
-    (if (settings/smtp-enabled)
-      (do (log/debug (str "sending email to: " (:email email)))
-          (postal/send-message (send-message-opts) prepared-email))
-      (do (log/warn "SMTP disabled. Message would be sent to: " (:email email))
+    (if-not (settings/smtp-enabled)
+      (do (log/warn "Email sending disabled. Message would be sent to: " (:to_address email))
           {:code 1
            :error :SMTP_DISABLED
-           :message "Message not sent because of disabled SMTP setting."}))))
+           :message "Message not sent because of disabled SMTP setting."})
+
+      ;; Email sending is enabled
+      (if (settings/ms365-enabled)
+        ;; MS365 is enabled, check if it's configured
+        (if (settings/ms365-configured?)
+          ;; MS365 is properly configured, branch on auth mode
+          (case (settings/ms365-auth-mode)
+
+            ;; RBAC (Client Credentials) mode
+            "rbac"
+            (if-let [access-token (ms365/get-rbac-access-token)]
+              (ms365/send-via-graph-api prepared-email access-token)
+              {:code 1
+               :error :MS365_RBAC_TOKEN_FAILED
+               :message "Failed to acquire MS365 RBAC token"})
+
+            ;; Delegated mode (default)
+            (let [from-address (:from_address email)
+                  mailbox (ms365/get-mailbox tx from-address)]
+              (if mailbox
+                (let [token-expired? (ms365/token-expired? (:token_expires_at mailbox))
+                      current-token (if token-expired?
+                                      (when-let [new-token-data (ms365/refresh-access-token (:refresh_token mailbox))]
+                                        (ms365/update-mailbox-token! tx from-address new-token-data)
+                                        (:access_token new-token-data))
+                                      (:access_token mailbox))]
+                  (if current-token
+                    (ms365/send-via-graph-api prepared-email current-token)
+                    {:code 1
+                     :error :MS365_TOKEN_REFRESH_FAILED
+                     :message (str "Failed to refresh MS365 token for sender: " from-address)}))
+                (do (log/error (str "MS365 enabled but no mailbox configured for: " from-address))
+                    {:code 1
+                     :error :MS365_MAILBOX_NOT_FOUND
+                     :message (str "No MS365 mailbox configured for sender: " from-address)}))))
+
+          ;; MS365 is enabled but not fully configured
+          (do (log/error "MS365 enabled but not fully configured. Missing required settings.")
+              {:code 1
+               :error :MS365_NOT_CONFIGURED
+               :message "MS365 is enabled but required configuration settings are missing."}))
+
+        ;; MS365 not enabled, use SMTP
+        (if (settings/smtp-configured?)
+          (postal/send-message (send-message-opts) prepared-email)
+          {:code 1
+           :error :SMTP_NOT_CONFIGURED
+           :message "SMTP enabled but address/port missing."})))))
 
 (defn- send-emails!
   [emails]
   (catcher/snatch
    {:level :warn}
    (doseq [email emails]
-     (let [result (try (send-email! email)
-                       (catch Exception e
-                         (log/warn (-> e
-                                       exception/get-cause
-                                       thrown/to-string))
-                         {:code 99,
-                          :error (-> e
-                                     .getClass
-                                     .getName),
-                          :message (.getMessage e)}))]
-       (-> email
-           (prepare-email-row result)
-           update-email!)))))
+     (jdbc/with-transaction+options [tx (get-ds)]
+       (try
+         (let [result (send-email! tx email)]
+           (-> email
+               (prepare-email-row result)
+               (->> (update-email! tx))))
+         (catch Exception e
+           (log/warn (try (-> e exception/get-cause thrown/to-string)
+                          (catch Exception _ (str e))))
+           (-> email
+               (prepare-email-row {:code 99
+                                   :error (-> e .getClass .getName)
+                                   :message (or (.getMessage e) (str e))})
+               (->> (update-email! tx)))))))))
 
 (defn- send-new-emails!
   []
@@ -109,7 +156,7 @@
                    [:cast 1 :integer]]])
       (sql/where
        [:>
-        [:extract [:raw "second from (now() - emails.updated_at)"]]
+        [:extract [:raw "epoch from (now() - emails.updated_at)"]]
         (-> (sql/select [[:raw "value[emails.trials]"]])
             (sql/from :retries))])
       sql-format

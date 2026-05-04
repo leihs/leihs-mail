@@ -1,6 +1,6 @@
 require "mail"
 
-LEIHS_MAIL_SMTP_PORT = ENV.fetch("LEIHS_MAIL_SMTP_PORT", "25")
+LEIHS_MAIL_SMTP_PORT = ENV.fetch("LEIHS_MAIL_SMTP_PORT", "32025")
 SEND_FREQUENCY_IN_SECONDS = (ENV["LEIHS_MAIL_SEND_FREQUENCY_IN_SECONDS"] || 1).to_i
 RETRIES_IN_SECONDS =
   (ENV["LEIHS_MAIL_RETRIES_IN_SECONDS"] && JSON.parse(ENV["LEIHS_MAIL_RETRIES_IN_SECONDS"])) \
@@ -38,7 +38,7 @@ def setup_email_client
   $mail ||= Mail.defaults do # standard:disable Style/GlobalVars
     retriever_method(:pop3,
       address: ENV.fetch("LEIHS_MAIL_SMTP_ADDRESS", "localhost"),
-      port: ENV.fetch("LEIHS_MAIL_POP3_PORT", "110"),
+      port: ENV.fetch("LEIHS_MAIL_POP3_PORT", "32110"),
       user_name: "any",
       password: "any",
       enable_ssl: false)

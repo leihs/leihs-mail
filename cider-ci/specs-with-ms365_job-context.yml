@@ -1,7 +1,7 @@
 generate_tasks:
-  include_match: spec/smtp/.*_spec.rb
+  include_match: spec/ms365/.*_spec.rb
 task_defaults:
-  include: cider-ci/task-components/fake-smtp-server.yml
+  include: cider-ci/task-components/fake-ms365-server.yml
   scripts:
     test:
       body: |
@@ -9,7 +9,6 @@ task_defaults:
         set -euo pipefail
         cd $LEIHS_MAIL_DIR
 
-        export LEIHS_MAIL_SMTP_DOMAIN="example.com"
         unset PGPORT; unset PGUSER
         PGPORT=${PG15PORT} PGUSER=${PG15USER} \
           ./bin/rspec $CIDER_CI_TASK_FILE
