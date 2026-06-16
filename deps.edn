@@ -3,8 +3,7 @@
  :deps {com.draines/postal {:mvn/version "2.0.5"}
         leihs-core/leihs-core {:local/root "./shared-clj"}
         environ/environ {:mvn/version "1.2.0"}
-        clojure.java-time/clojure.java-time {:mvn/version "1.4.2"}
-        }
+        clojure.java-time/clojure.java-time {:mvn/version "1.4.2"}}
 
  :aliases {:build {:deps
                    {io.github.leihs/tools.build
@@ -24,7 +23,7 @@
 
            :clj-watson {:replace-deps
                         {io.github.clj-holmes/clj-watson
-                         {:git/tag "v6.0.1" :git/sha "b520351"}}
+                         {:git/tag "v6.1.0" :git/sha "be98e4d"}}
                         :main-opts ["-m" "clj-watson.cli"]}
 
            :resource-paths ["resources"]}}
