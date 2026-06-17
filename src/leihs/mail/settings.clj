@@ -25,7 +25,8 @@
 (def mail-send-pause-secs-key :mail-send-pause-secs)
 (def send-pause-secs-opt
   [nil (long-opt-for-key mail-send-pause-secs-key)
-   :default (-> (or (some-> mail-send-pause-secs-key env presence)
+   :default (-> (or (some-> :leihs-mail-send-frequency-in-seconds env presence)
+                    (some-> mail-send-pause-secs-key env presence)
                     "1")
                 Integer/parseInt)
    :parse-fn #(Integer/parseInt %)
@@ -35,8 +36,8 @@
 (def mail-retries-seconds*-key :mail-retries-seconds)
 (def retries-in-seconds-opt
   [nil (long-opt-for-key mail-retries-seconds*-key)
-   :default (or (some-> retries-in-seconds-opt
-                        env presence yaml/parse-string)
+   :default (or (some-> :leihs-mail-retries-in-seconds env presence yaml/parse-string)
+                (some-> mail-retries-seconds*-key env presence yaml/parse-string)
                 [5,10,30,60,300,3600,18000])
    :parse-fn yaml/parse-string
    :validate [#(and (seq %)

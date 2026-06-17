@@ -16,9 +16,8 @@ describe "Sending of emails succeeds (with domain)" do
     expect_until_timeout do
       email.reload
       expect(email.trials).to eq 1
-      expect(email.code).to eq 0
-      expect(email.error).to eq "SUCCESS"
-      expect(email.message).to eq "messages sent"
+      expect(email.is_successful).to eq true
+      expect(email.error_message).to be_nil
       expect(Email.count).to eq 1
       assert_received_email(email.from_address, email.to_address)
       assert_domain(domain)
@@ -32,9 +31,8 @@ describe "Sending of emails succeeds (with domain)" do
     expect_until_timeout do
       email.reload
       expect(email.trials).to eq 2
-      expect(email.code).to eq 0
-      expect(email.error).to eq "SUCCESS"
-      expect(email.message).to eq "messages sent"
+      expect(email.is_successful).to eq true
+      expect(email.error_message).to be_nil
       expect(Email.count).to eq 1
       assert_received_email(email.from_address, email.to_address)
     end
@@ -47,9 +45,8 @@ describe "Sending of emails succeeds (with domain)" do
     expect_until_timeout do
       email.reload
       expect(email.trials).to eq 3
-      expect(email.code).to eq 0
-      expect(email.error).to eq "SUCCESS"
-      expect(email.message).to eq "messages sent"
+      expect(email.is_successful).to eq true
+      expect(email.error_message).to be_nil
       expect(Email.count).to eq 1
       assert_received_email(email.from_address, email.to_address)
     end
@@ -62,9 +59,8 @@ describe "Sending of emails succeeds (with domain)" do
     expect_until_timeout do
       email.reload
       expect(email.trials).to eq 1
-      expect(email.code).to eq 0
-      expect(email.error).to eq "SUCCESS"
-      expect(email.message).to eq "message sent"
+      expect(email.is_successful).to eq true
+      expect(email.error_message).to be_nil
 
       expect(Email.count).to eq 1
       assert_not_received_email(email.from_address, email.to_address)

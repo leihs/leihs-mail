@@ -10,9 +10,8 @@ describe "Sending of emails fails" do
     expect_until_timeout do
       email.reload
       expect(email.trials).to eq 1
-      expect(email.code).to eq 99
-      expect(email.error).to eq "com.sun.mail.util.MailConnectException"
-      expect(email.message).to match(/Couldn't connect to host, port: localhost, \d+; timeout -1/)
+      expect(email.is_successful).to eq false
+      expect(email.error_message).to match(/^com\.sun\.mail\.util\.MailConnectException: Couldn't connect to host, port: localhost, \d+; timeout -1/)
       expect(Email.count).to eq 1
     end
   end

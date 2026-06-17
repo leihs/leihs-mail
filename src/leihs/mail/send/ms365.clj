@@ -5,6 +5,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [java-time :as t]
+   [leihs.mail.send.result :as result]
    [leihs.mail.settings :as settings]
    [next.jdbc :as jdbc :refer [execute!] :rename {execute! jdbc-execute!}]
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
@@ -163,8 +164,7 @@
         response-body (:body response)]
 
     (if (= 202 status)
-      {:code 0
-       :message "Email sent successfully via MS365 Graph API"}
+      (result/success-result)
       (do
         (log/error "Failed to send email via MS365. Status:" status)
         (log/error "Response:" response-body)
@@ -175,6 +175,6 @@
                                 (str error-code ": " error-msg))
                               (catch Exception _
                                 response-body))]
-          {:code 1
-           :error :MS365_SEND_FAILED
-           :message (str "MS365 API failed (Status " status "): " error-details)})))))
+          (result/failure-result
+           :MS365_SEND_FAILED
+           (str "MS365 API failed (Status " status "): " error-details)))))))
