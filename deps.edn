@@ -1,6 +1,7 @@
 {:paths [:cljc-paths :resource-paths]
 
  :deps {com.draines/postal {:mvn/version "2.0.5"}
+        com.sun.mail/jakarta.mail {:mvn/version "1.6.8"} ; transitive via com.draines/postal, https://osv.dev/GHSA-9342-92gg-6v29
         leihs-core/leihs-core {:local/root "./shared-clj"}
         environ/environ {:mvn/version "1.2.0"}
         clojure.java-time/clojure.java-time {:mvn/version "1.4.2"}}
@@ -20,10 +21,5 @@
 
            :outdated {:extra-deps {com.github.liquidz/antq {:mvn/version "2.5.1109"}}
                       :main-opts ["-m" "antq.core"]}
-
-           :clj-watson {:replace-deps
-                        {io.github.clj-holmes/clj-watson
-                         {:git/tag "v6.1.0" :git/sha "be98e4d"}}
-                        :main-opts ["-m" "clj-watson.cli"]}
 
            :resource-paths ["resources"]}}
