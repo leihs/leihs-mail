@@ -30,8 +30,8 @@ RSpec.describe "MS365 email sending", type: :request do
       expect_until_timeout do
         email.reload
         expect(email.trials).to eq 1
-        expect(email.code).to eq 0
-        expect(email.message).to eq "Email sent successfully via MS365 Graph API"
+        expect(email.is_successful).to eq true
+        expect(email.error_message).to be_nil
       end
     end
 
@@ -53,8 +53,8 @@ RSpec.describe "MS365 email sending", type: :request do
 
         # Email should be sent successfully
         expect(email.trials).to eq 1
-        expect(email.code).to eq 0
-        expect(email.message).to eq "Email sent successfully via MS365 Graph API"
+        expect(email.is_successful).to eq true
+        expect(email.error_message).to be_nil
 
         # Mailbox should have new tokens (mock server generates random tokens)
         expect(mailbox.access_token).not_to eq old_access_token
@@ -75,8 +75,8 @@ RSpec.describe "MS365 email sending", type: :request do
       expect_until_timeout do
         email.reload
         expect(email.trials).to eq 1
-        expect(email.code).to eq 1
-        expect(email.error).to eq "MS365_MAILBOX_NOT_FOUND"
+        expect(email.is_successful).to eq false
+        expect(email.error_message).to start_with("MS365_MAILBOX_NOT_FOUND:")
       end
     end
   end

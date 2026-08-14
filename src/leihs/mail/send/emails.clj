@@ -6,6 +6,7 @@
    [leihs.core.db :refer [get-ds]]
    [leihs.core.ring-exception :as exception]
    [leihs.mail.send.ms365 :as ms365]
+   [leihs.mail.send.result :as result]
    [leihs.mail.settings :as settings]
    [logbug.catcher :as catcher]
    [logbug.thrown :as thrown]
@@ -35,11 +36,15 @@
 
 (defn- prepare-email-row
   [email result]
-  (-> email
-      (merge result {:updated_at [:now]})
-      (update :error #(when % (name %)))
-      (update :trials inc)
-      (dissoc :email)))
+  (if (:success result)
+    (-> email
+        (assoc :is_successful true :error_message nil)
+        (assoc :updated_at [:now])
+        (update :trials inc))
+    (-> email
+        (assoc :is_successful false :error_message (:message result))
+        (assoc :updated_at [:now])
+        (update :trials inc))))
 
 (defn- prepare-email-message
   [email]
@@ -48,6 +53,14 @@
         (select-keys [:from_address :to_address :subject :body])
         (rename-keys {:from_address :from, :to_address :to})
         (cond-> sender-address (assoc :sender sender-address)))))
+
+(defn- normalize-postal-result
+  [result]
+  (if (= 0 (:code result))
+    (result/success-result)
+    (result/failure-result
+     (or (:message result)
+         (str "Postal send failed with code " (:code result))))))
 
 (defn send-message-opts
   []
@@ -63,9 +76,8 @@
   (let [prepared-email (prepare-email-message email)]
     (if-not (settings/smtp-enabled)
       (do (log/warn "Email sending disabled. Message would be sent to: " (:to_address email))
-          {:code 1
-           :error :SMTP_DISABLED
-           :message "Message not sent because of disabled SMTP setting."})
+          (result/failure-result :SMTP_DISABLED
+                                 "Message not sent because of disabled SMTP setting."))
 
       ;; Email sending is enabled
       (if (settings/ms365-enabled)
@@ -78,9 +90,8 @@
             "rbac"
             (if-let [access-token (ms365/get-rbac-access-token)]
               (ms365/send-via-graph-api prepared-email access-token)
-              {:code 1
-               :error :MS365_RBAC_TOKEN_FAILED
-               :message "Failed to acquire MS365 RBAC token"})
+              (result/failure-result :MS365_RBAC_TOKEN_FAILED
+                                     "Failed to acquire MS365 RBAC token"))
 
             ;; Delegated mode (default)
             (let [from-address (:from_address email)
@@ -94,26 +105,23 @@
                                       (:access_token mailbox))]
                   (if current-token
                     (ms365/send-via-graph-api prepared-email current-token)
-                    {:code 1
-                     :error :MS365_TOKEN_REFRESH_FAILED
-                     :message (str "Failed to refresh MS365 token for sender: " from-address)}))
+                    (result/failure-result :MS365_TOKEN_REFRESH_FAILED
+                                           (str "Failed to refresh MS365 token for sender: " from-address))))
                 (do (log/error (str "MS365 enabled but no mailbox configured for: " from-address))
-                    {:code 1
-                     :error :MS365_MAILBOX_NOT_FOUND
-                     :message (str "No MS365 mailbox configured for sender: " from-address)}))))
+                    (result/failure-result :MS365_MAILBOX_NOT_FOUND
+                                           (str "No MS365 mailbox configured for sender: " from-address))))))
 
           ;; MS365 is enabled but not fully configured
           (do (log/error "MS365 enabled but not fully configured. Missing required settings.")
-              {:code 1
-               :error :MS365_NOT_CONFIGURED
-               :message "MS365 is enabled but required configuration settings are missing."}))
+              (result/failure-result :MS365_NOT_CONFIGURED
+                                     "MS365 is enabled but required configuration settings are missing.")))
 
         ;; MS365 not enabled, use SMTP
         (if (settings/smtp-configured?)
-          (postal/send-message (send-message-opts) prepared-email)
-          {:code 1
-           :error :SMTP_NOT_CONFIGURED
-           :message "SMTP enabled but address/port missing."})))))
+          (-> (postal/send-message (send-message-opts) prepared-email)
+              normalize-postal-result)
+          (result/failure-result :SMTP_NOT_CONFIGURED
+                                 "SMTP enabled but address/port missing."))))))
 
 (defn- send-emails!
   [emails]
@@ -130,9 +138,10 @@
            (log/warn (try (-> e exception/get-cause thrown/to-string)
                           (catch Exception _ (str e))))
            (-> email
-               (prepare-email-row {:code 99
-                                   :error (-> e .getClass .getName)
-                                   :message (or (.getMessage e) (str e))})
+               (prepare-email-row
+                (result/failure-result
+                 (str (-> e .getClass .getName) ": "
+                      (or (.getMessage e) (str e)))))
                (->> (update-email! tx)))))))))
 
 (defn- send-new-emails!
@@ -147,7 +156,7 @@
                                [:array @settings/retries-seconds*]
                                [:raw "integer[]"]]
                               :value])])
-      (sql/where [:> :emails.code 0])
+      (sql/where [:= :emails.is_successful false])
       (sql/where [:<=
                   :emails.trials
                   [:array_length

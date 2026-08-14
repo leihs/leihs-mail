@@ -13,9 +13,8 @@ describe "Sending of emails fails" do
     expect_until_timeout do
       email_2 = email.dup.reload
       expect(email_2.trials).to eq email.trials
-      expect(email_2.code).to eq email.code
-      expect(email_2.error).to eq email.error
-      expect(email_2.message).to eq email.message
+      expect(email_2.is_successful).to eq email.is_successful
+      expect(email_2.error_message).to eq email.error_message
       expect(Email.count).to eq 1
       assert_not_received_email(email.from_address, email.to_address)
     end
@@ -31,9 +30,8 @@ describe "Sending of emails fails" do
     expect_until_timeout do
       email.reload
       expect(email.trials).to be > 0
-      expect(email.code).to eq 99
-      expect(email.error).to eq "javax.mail.MessagingException"
-      expect(email.message).to eq "STARTTLS is required but host does not support STARTTLS"
+      expect(email.is_successful).to eq false
+      expect(email.error_message).to eq "javax.mail.MessagingException: STARTTLS is required but host does not support STARTTLS"
       expect(Email.count).to eq 1
       assert_not_received_email(email.from_address, email.to_address)
     end
@@ -48,9 +46,8 @@ describe "Sending of emails fails" do
     expect_until_timeout do
       email.reload
       expect(email.trials).to eq 1
-      expect(email.code).to eq 1
-      expect(email.error).to eq "SMTP_DISABLED"
-      expect(email.message).to eq "Message not sent because of disabled SMTP setting."
+      expect(email.is_successful).to eq false
+      expect(email.error_message).to eq "SMTP_DISABLED: Message not sent because of disabled SMTP setting."
       expect(Email.count).to eq 1
       assert_not_received_email(email.from_address, email.to_address)
     end

@@ -28,15 +28,12 @@ FactoryBot.define do
 
   trait :succeeded do
     trials { 1 }
-    code { 0 }
-    error { "SUCCESS" }
-    message { "message sent" }
+    is_successful { true }
   end
 
   trait :failed do
     trials { 1 }
-    code { 69 }
-    error { "EX_UNAVAILABLE" }
-    message { "service unavailable" }
+    is_successful { false }
+    error_message { "EX_UNAVAILABLE: service unavailable" }
   end
 end

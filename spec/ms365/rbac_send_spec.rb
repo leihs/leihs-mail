@@ -30,8 +30,8 @@ RSpec.describe "MS365 RBAC email sending", type: :request do
     expect_until_timeout do
       email.reload
       expect(email.trials).to eq 1
-      expect(email.code).to eq 1
-      expect(email.error).to eq "MS365_RBAC_TOKEN_FAILED"
+      expect(email.is_successful).to eq false
+      expect(email.error_message).to start_with("MS365_RBAC_TOKEN_FAILED:")
     end
   end
 
@@ -43,8 +43,8 @@ RSpec.describe "MS365 RBAC email sending", type: :request do
     expect_until_timeout do
       email.reload
       expect(email.trials).to eq 1
-      expect(email.code).to eq 0
-      expect(email.message).to eq "Email sent successfully via MS365 Graph API"
+      expect(email.is_successful).to eq true
+      expect(email.error_message).to be_nil
     end
   end
 end
