@@ -6,6 +6,10 @@ cd $PROJECT_DIR
 
 ./bin/build
 
+# java via asdf or mise (see bin/env/select-tool-versions-manager): the same gate the build
+# and the other clj scripts use; do not rely on whatever java happens to be on PATH.
+./bin/env/java-setup
+
 java -jar target/leihs-mail.jar run "$@"
 
 # vi: ft=sh
