@@ -25,6 +25,18 @@ jobs:
     include: cider-ci/specs_job-defaults.yml
     context: { include: cider-ci/specs-with-ms365_job-context.yml }
 
+  clojure-tests:
+    name: Run clojure-tests
+    depends_on: &CLOJURE_TESTS_DEPENDS
+      uberjar passed:
+        type: job
+        job_key: build-mail-uberjar
+        states: [passed]
+    run_when: *CLOJURE_TESTS_DEPENDS
+    context:
+      include:
+        - cider-ci/task-components/clojure-tests.yml
+
   lint:
     name: "Linting"
     description: |

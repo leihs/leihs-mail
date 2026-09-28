@@ -15,6 +15,10 @@ depends_on: &GOOD_TO_MERGE_DEPENDENTS
     type: job
     job_key: specs-without-fake-smtp-server
     states: [passed]
+  clojure-tests have passed:
+    type: job
+    job_key: clojure-tests
+    states: [passed]
   lints have passed:
     type: job
     job_key: lint

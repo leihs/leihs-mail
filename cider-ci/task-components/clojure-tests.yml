@@ -1,0 +1,17 @@
+generate_tasks:
+  include_match: test/.*_test.clj
+
+task_defaults:
+  git_options:
+    submodules:
+      include_match: ^.*$
+
+  traits:
+    asdf: true
+
+  scripts:
+    test:
+      body: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        clojure -X:test
