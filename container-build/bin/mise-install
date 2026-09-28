@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
+# mise (tool version manager) from its official Debian repository,
+# see https://mise.jdx.dev/installing-mise.html#apt
+install -dm 755 /etc/apt/keyrings
+curl -fsSL https://mise.jdx.dev/gpg-key.pub \
+  | gpg --dearmor -o /etc/apt/keyrings/mise-archive-keyring.gpg
+echo "deb [signed-by=/etc/apt/keyrings/mise-archive-keyring.gpg arch=amd64] https://mise.jdx.dev/deb stable main" \
+  > /etc/apt/sources.list.d/mise.list
+apt update --yes
+apt install --yes mise
+mise --version
+
+# Activate mise for every bash in the container. /etc/profile.d only reaches
+# login shells; the incus exec calls in the task component therefore pass
+# BASH_ENV=/etc/profile.d/mise.sh so non-interactive scripts get it too
+# (same mechanism the Cider-CI executor uses for trial scripts).
+cat > /etc/profile.d/mise.sh <<'SNIPPET'
+eval "$(/usr/bin/mise activate bash)"
+SNIPPET
+
+# Install the tool versions pinned in .tool-versions (java, clojure, ruby) up
+# front, so failures show up here and not in the build step. The project's
+# bin/env/*-setup scripts pick mise automatically (bin/env/select-tool-versions-manager).
+cd /leihs-mail
+mise install
+mise ls --current
+
+# vi: ft=sh

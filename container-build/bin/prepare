@@ -5,31 +5,31 @@ set -x
 apt update --yes
 apt dist-upgrade --yes
 
+# build dependencies for the tools mise installs from source (ruby via
+# ruby-build) plus what java/clojure need; Debian trixie package names
 apt install --yes \
   autoconf \
   bison \
   build-essential \
+  ca-certificates \
+  curl \
+  git \
+  gpg \
   libdb-dev \
   libffi-dev \
   libgdbm-dev \
-  libgdbm6 \
   libgmp-dev \
-  libncurses5-dev \
+  libncurses-dev \
   libpq-dev \
-  libreadline6-dev \
+  libreadline-dev \
   libssl-dev \
   libyaml-dev \
   patch \
+  rlwrap \
   rustc \
+  shared-mime-info \
   unzip \
   uuid-dev \
   zlib1g-dev
 
-
-# these did not work, why?
-#apt install --yes \
-#  locales-all \
-#  python3-pip
-#
-
-# vi set ft=sh
+# vi: ft=sh
