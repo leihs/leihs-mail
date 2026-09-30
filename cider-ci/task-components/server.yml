@@ -1,6 +1,3 @@
-traits:
-  JDK: true
-
 scripts:
   run-mail-server:
     start_when:

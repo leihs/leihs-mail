@@ -38,6 +38,9 @@ jobs:
         exclude_match: "^.*(no-ci|hotspot).*$"
     context:
       task_defaults:
+        # rblint/check-ruby-commited need Ruby, cljfmt gets Java+Clojure via bin/env/*-setup (mise)
+        traits:
+          Ruby: true
         git_options:
           submodules:
             include_match: ^.*$
