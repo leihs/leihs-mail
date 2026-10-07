@@ -123,6 +123,19 @@
           (result/failure-result :SMTP_NOT_CONFIGURED
                                  "SMTP enabled but address/port missing."))))))
 
+(defn- throwable-str
+  [^Throwable e]
+  (str (-> e .getClass .getName) ": "
+       (or (.getMessage e) (str e))))
+
+(defn- exception-message
+  "Top-level exception, plus root cause if different."
+  [e]
+  (let [cause (exception/get-cause e)]
+    (cond-> (throwable-str e)
+      (not (identical? cause e))
+      (str "; caused by: " (throwable-str cause)))))
+
 (defn- send-emails!
   [emails]
   (catcher/snatch
@@ -139,9 +152,7 @@
                           (catch Exception _ (str e))))
            (-> email
                (prepare-email-row
-                (result/failure-result
-                 (str (-> e .getClass .getName) ": "
-                      (or (.getMessage e) (str e)))))
+                (result/failure-result (exception-message e)))
                (->> (update-email! tx)))))))))
 
 (defn- send-new-emails!
