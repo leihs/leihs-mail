@@ -4,7 +4,7 @@
         com.sun.mail/jakarta.mail {:mvn/version "1.6.8"} ; transitive via com.draines/postal, https://osv.dev/GHSA-9342-92gg-6v29
         leihs-core/leihs-core {:local/root "./shared-clj"}
         environ/environ {:mvn/version "1.2.0"}
-        clojure.java-time/clojure.java-time {:mvn/version "1.4.2"}}
+        clojure.java-time/clojure.java-time {:mvn/version "1.4.3"}}
 
  :aliases {:build {:deps
                    {io.github.leihs/tools.build
